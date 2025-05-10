@@ -56,19 +56,28 @@ a:hover{
     margin-bottom: 10px;
     display: block;
 }
-.image{
+.image {
     position: absolute;
     top: -90px;
     left: 50%;
     transform: translateX(-50%);
     width: 120px;
     height: 120px;
-    padding: 20px;
+    padding: 0;
     background-color: #fffdfd;
     border-radius: 50%;
     border: 2px solid #ccc;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 ::-webkit-scrollbar{
     display: none;
