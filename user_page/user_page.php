@@ -1,22 +1,32 @@
 <?php
-// Connessione al database
-$host = 'localhost'; // Host del database
-$db = 'inventariosdarzo'; // Nome del database
-$user = 'root'; // Nome utente del database
-$pass = ''; // Password del database
+    session_start();
 
-try {
-    // Tentativo di connessione al database con PDO
-    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $username = $_SESSION['username'];
+    $role = $_SESSION['role'];
 
-    // Recupera tutte le aule dalla tabella 'aula'
-    $stmt = $conn->query("SELECT ID_Aula, descrizione, tipologia FROM aula");
-    $aule = $stmt->fetchAll(PDO::FETCH_ASSOC); // Restituisce i risultati come array associativo
-} catch (PDOException $e) {
-    // Gestisce gli errori di connessione o query
-    die("Errore nella connessione o nella query: " . $e->getMessage());
-}
+    if(!is_null($username) && $role == "user"){
+        // Connessione al database
+        $host = 'localhost'; // Host del database
+        $db = 'inventariosdarzo'; // Nome del database
+        $user = 'root'; // Nome utente del database
+        $pass = ''; // Password del database
+
+        try {
+            // Tentativo di connessione al database con PDO
+            $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Recupera tutte le aule dalla tabella 'aula'
+            $stmt = $conn->query("SELECT ID_Aula, descrizione, tipologia FROM aula");
+            $aule = $stmt->fetchAll(PDO::FETCH_ASSOC); // Restituisce i risultati come array associativo
+        } catch (PDOException $e) {
+            // Gestisce gli errori di connessione o query
+            die("Errore nella connessione o nella query: " . $e->getMessage());
+        }
+    }else{
+        header("Location: ..\logout\logout.php");
+    }
+    
 ?>
 
 <!DOCTYPE html>

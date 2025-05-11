@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     //info database
     $host = 'localhost';
     $db = 'inventariosdarzo';
@@ -37,6 +39,10 @@
             if($user){
                 //verifica della password utente
                 if (password_verify($password, password_hash($user['password'], PASSWORD_DEFAULT))){
+                    //Salvataggio di username e ruolo nella sessione
+                    $_SESSION['username'] = $_POST['username'];
+                    $_SESSION['role'] = "user";
+                    //accesso alla pagina user
                     header('Location: ..\user_page\user_page.php');
                 } else{
                     $errors['username'] = "Password o nome utente errati";
@@ -49,6 +55,10 @@
                 
                 //verifica della password admin
                 if ($admin && password_verify($password, password_hash($admin['password'], PASSWORD_DEFAULT))){
+                    //Salvataggio di username e ruolo nella sessione
+                    $_SESSION['username'] = $_POST['username'];
+                    $_SESSION['role'] = "admin";
+                    //accesso alla pagina admin
                     header('Location: ..\admin_page\admin_page.php');
                 }else{
                     $errors['username'] = "Password o nome utente errati";

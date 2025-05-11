@@ -1,5 +1,14 @@
 <?php
-    $nomeUtente = "admin";
+    session_start();
+
+    $username = $_SESSION['username'];
+    $role = $_SESSION['role'];
+
+    if(!is_null($username) && $role == "admin"){
+
+    }else{
+        header("Location: ..\logout\logout.php");
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +29,7 @@
             <!-- sidebar -->
             <div class="sidebar">
                 <div class="image"><img src="..\assets\images\logo_darzo.png" width="120px"></div>
-            
+                <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
@@ -29,16 +38,12 @@
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                 </div>  
             </div>
+            <!-- content contiene tutto ciò che è al di fuori della sidebar -->
             <div class="content">
-                <div class="user-details">
-                    <!-- <div class="profile-pic">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profilo">
-                    </div> -->
-                    <div class="profile-pic">
-                        <img src="..\assets\images\placeholder.png" width="120px">
-                    </div>
-                    <span class="username"><?php echo $nomeUtente; ?></span>
-                    <a href="logout.php" class="logout-btn" title="Logout">
+                <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
+                <div class="user-logout">
+                    <span class="username"><?php echo $username; ?></span>
+                    <a class="logout-btn" href="..\logout\logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
