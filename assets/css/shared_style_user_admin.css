@@ -95,8 +95,9 @@ a{
     padding: 0 30px;
 }
 .logout-btn {
+    margin-top: 2%;
     color: #d9534f;
-    font-size: 1.5rem;
+    font-size: 2rem;
 }
 .logout-btn:hover {
     color: #c9302c;
@@ -158,4 +159,15 @@ h1{
 .card-red { background: #ef4444; }
 .selected{
     background-color: #384251;
+}
+
+
+
+
+
+
+.placeholder{
+    height: 250px;
+    width: 95%;
+    background-color: #d9534f;
 }

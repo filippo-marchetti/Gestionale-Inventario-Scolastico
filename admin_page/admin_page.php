@@ -21,7 +21,7 @@
         $stmt = $conn->query("SELECT count(*) FROM inventario");
         $num_inventari = $stmt->fetchColumn(); 
         // Query per recuperare il numero dei tecnici
-        $stmt = $conn->query("SELECT count(*) FROM utente");
+        $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attivo'");
         $num_tecnici = $stmt->fetchColumn(); 
         // Query per recuperare il numero degli account da verificare
         $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attesa'");
@@ -94,7 +94,7 @@
                             <span class="card-number"><?php echo $num_tecnici?> tecnici</span>
                         </div>
                     </a>
-                    <a href="bop.php">
+                    <a href="user_accept/user_accept.php">
                         <div class="card card-orange">
                         <div class="card-content">
                             <i class="fas fa-user-clock"></i>
@@ -113,6 +113,12 @@
                         </div>
                     </a>
                 </div>
+
+                <!-- da aggiungere -->
+                 <div class="placeholder"></div>
+
+                <!-- task recenti -->
+                <div></div>
             </div>
         </div>
     </body>

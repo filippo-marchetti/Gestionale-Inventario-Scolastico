@@ -29,7 +29,9 @@
             $stmt->bindParam(':stato', $scelta);
             $stmt->bindParam(':username', $pk_utente);
             $stmt->execute();
-        } elseif (isset($_POST['rifiuta'])) {
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+        }else if (isset($_POST['rifiuta'])) {
             $pk_utente = $_POST['rifiuta'];
 
             //Richiesta negata e eliminazione dell'account
@@ -37,7 +39,22 @@
             $stmt->bindParam(':username', $pk_utente);
             $stmt->execute();
 
+            header("Location: " . $_SERVER['PHP_SELF']);
         }
+        if (isset($_POST['accept-all'])) {
+            $scelta = "attivo";
+            $stmt = $conn->prepare("UPDATE utente SET stato = :stato WHERE stato = 'attesa'");
+            $stmt->bindParam(':stato', $scelta);
+            $stmt->execute();
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+        } else if (isset($_POST['reject-all'])) {
+            $stmt = $conn->prepare("DELETE FROM utente WHERE stato = 'attesa'");
+            $stmt->execute();
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+        }
+
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -62,7 +79,7 @@
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
-                    <a href="admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
+                    <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <a href="user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="boh.php"><div class="section selected"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
@@ -73,15 +90,17 @@
             <div class="content">
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
                 <div class="logout">
-                    <a class="logout-btn" href="..\logout\logout.php">
+                    <a class="logout-btn" href="..\..\logout\logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
                 <h1>Richieste Account</h1>
-                <div class="btn-container">
-                    <div class="btn btn-blu"><i class="fas fa-check"></i>ACCETTA TUTTI</div>
-                    <div class="btn btn-red"><i class="fas fa-times"></i>RIFIUTA TUTTI</div>
-                </div>
+
+                <form class="btn-container" method="post">
+                    <button class="btn btn-blu" name="accept-all"><i class="fas fa-check"></i>ACCETTA TUTTI</button>
+                    <button class="btn btn-red" name="reject-all"><i class="fas fa-times"></i>RIFIUTA TUTTI</button>
+                </form>
+
                 <div class="user-request">
                     <table>
                         <thead>
@@ -107,7 +126,7 @@
                                         echo "<td>".$utente['scuola_appartenenza']."</td>";
                                         ?>
                                             <td>
-                                                <form method="POST" action="">
+                                                <form method="POST">
                                                     <button type="submit" name="accetta" value="<?php echo $utente['username']?>" class="btn-action btn-blu">
                                                         <i class="fas fa-check"></i>
                                                     </button>
