@@ -9,8 +9,8 @@ html, body {
     font-family: Arial, Helvetica, sans-serif;
 }
 .container {
-    background-color: #fffdfd;
-    width: 77vw;
+    background-color: #fbfbfb;
+    width: 75vw;
     height: 90vh;
     display: flex;
     border-radius: 20px;
@@ -64,8 +64,8 @@ a{
     width: 100%;
     height: 100%;
     font-weight: 500;
-    color: #fffdfd;
-    font-size: 0.8rem;
+    color: #ffffff;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: start;
@@ -75,7 +75,7 @@ a{
 /* Il content è lo spazio con lo sfondo bianco a destra della sidebar */
 .content {
     flex-grow: 1;
-    background-color: #fffdfd;
+    background-color: #fbfbfb;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     overflow-y: auto;
@@ -85,7 +85,6 @@ a{
 .logout {
     display: flex;
     align-items: center;
-    gap: 15px;
     height: 60px;
     justify-content: flex-end;
     align-items: center;
@@ -93,7 +92,7 @@ a{
 }
 .logout-btn {
     color: #d9534f;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
 }
 .logout-btn:hover {
     color: #c9302c;
@@ -104,17 +103,19 @@ h1{
     margin-top: 25px;
     font-weight: 500;
 } 
-
 /* stile delle card colorate */
 .dashboard-cards {
     display: flex;
-    gap: 20px;
+    gap: 30px;
     margin: 20px 0;
     flex-wrap: wrap;
+    width: 100%;
 }
 .card {
-    width: 150px;
-    height: 80px;
+    width: 10.2vw;
+    min-width: 70px;
+    height: 10.2vh;
+    min-height: 40px;
     padding: 12px;
     border-radius: 8px;
     color: white;
@@ -125,27 +126,21 @@ h1{
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-
-    white-space: normal; /* Questo permette che il testo vada a capo solo quando necessario */
 }
-
 .card-content {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 30px;
 }
-
 .card i {
     max-width: 23px;
     font-size: 1.8rem;
     margin-left: 5%;
 }
-
 .card h3 {
     font-weight: 400;
-    font-size: 1rem;
+    font-size: 1.2rem;
 }
-
 .card-number {
     position: relative;
     bottom: 2px;
@@ -153,8 +148,10 @@ h1{
     font-weight: 550;
     align-self: center;
 }
-
 .card-blue { background: #3b82f6; }
 .card-green { background: #1fdab1; }
 .card-orange { background: #f59e0b; }
 .card-red { background: #ef4444; }
+.selected{
+    background-color: #384251;
+}
