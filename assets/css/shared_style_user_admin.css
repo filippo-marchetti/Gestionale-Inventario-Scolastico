@@ -70,7 +70,6 @@ a{
     align-items: center;
     justify-content: start;
     padding: 0 8%;
-    gap: 10px;
 }
 /* Il content è lo spazio con lo sfondo bianco a destra della sidebar */
 .content {
@@ -80,6 +79,11 @@ a{
     border-bottom-right-radius: 20px;
     overflow-y: auto;
     margin-left: 4%;
+}
+.section-text i {
+    width: 30px;
+    font-size: 1.2rem;
+    margin-right: 10px; /* Spazio tra icona e testo (facoltativo se usi space-between) */
 }
 /* parte alta del content contenente il pulsante del logout */
 .logout {
