@@ -24,7 +24,7 @@
         $stmt = $conn->query("SELECT count(*) FROM utente");
         $num_tecnici = $stmt->fetchColumn(); 
         // Query per recuperare il numero degli account da verificare
-        $stmt = $conn->query("SELECT count(*) FROM utente");
+        $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attesa'");
         $num_account_da_verificare = $stmt->fetchColumn();
         // Query per recuperare il materiale non assegnato ad alcuna classe
         $stmt = $conn->query("SELECT count(*) FROM dotazione WHERE ID_aula IS NULL");
