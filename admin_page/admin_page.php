@@ -53,7 +53,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="..\assets\css\background.css">
         <link rel="stylesheet" href="..\assets\css\shared_style_user_admin.css">
-        <title>Document</title>
+        <link rel="stylesheet" href="admin_page.css">
+        <title>Admin - Page</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     </head>
@@ -73,6 +74,8 @@
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
                     <a href="lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
@@ -138,7 +141,7 @@
                             <?php 
                                 $i = 0; //serve a prendere solo le ultime 3 azioni
                                 foreach ($inventari_piu_tecnici as $inventario_piu_tecnico) {
-                                    echo $inventario_piu_tecnico["username"]." ha aggiornato ".$inventario_piu_tecnico["ID_aula"]." in data ".$inventario_piu_tecnico["data_inventario"]."<br>";
+                                    echo "<tr><td>".$inventario_piu_tecnico["username"]." ha aggiornato l'inventario di ".$inventario_piu_tecnico["ID_aula"]." in data ".$inventario_piu_tecnico["data_inventario"]."</tr></td>";
                                     $i++;
                                     if($i == 3) exit;
                                 }

@@ -10,9 +10,6 @@
     $username = $_SESSION['username'];
     $role = $_SESSION['role'];
 
-    $pk_utente = "";
-    $scelta = "";
-
     if(!is_null($username) && $role == "admin"){
         try {
         $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
@@ -51,6 +48,8 @@
                     <a href="user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
                     <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
@@ -95,15 +94,22 @@
                                         echo "<td>".$dotazione['prezzo_stimato']."€</td>";
                                         echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
-                                            <td style="text-align: center;">
-                                                <form method="POST">
-                                                    <button name="modifica" class="btn-action btn-green">
+                                            <td class="td-action-btn">
+                                                <!-- reindirizza alla pagina di modifica -->
+                                                <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                    <button name="modifica" class="btn-action btn-green" value="">
                                                         <i class="fas fa-pen"></i>
                                                     </button>
+                                                </a>
+                                                <!-- reindirizza alla pagina del qrcode -->
+                                                <a href="modifica_dotazione/modifica_dotazione.php?id=123">
                                                     <button name="qrcode" class="btn-action btn-blu">
                                                         <i class="fas fa-qrcode"></i>
                                                     </button>
-                                                    <button name="rifiuta" class="btn-action btn-red">
+                                                </a>
+                                                <!-- reindirizza alla pagina di eliminazione -->
+                                                <form method="POST">
+                                                    <button name="elimina" class="btn-action btn-red">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
