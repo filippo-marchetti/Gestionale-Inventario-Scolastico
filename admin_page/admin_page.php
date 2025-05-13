@@ -59,7 +59,7 @@
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
@@ -118,7 +118,12 @@
                  <div class="placeholder"></div>
 
                 <!-- task recenti -->
-                <div></div>
+                <div class="log-container">
+                    <div class="log-title">Attività recenti</div>
+                    <div class="log-content">
+                        
+                    </div>
+                </div>
             </div>
         </div>
     </body>

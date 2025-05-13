@@ -66,7 +66,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="..\..\assets\css\background.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="user_accept.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -81,9 +81,9 @@
                     <br>
                     <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
-                    <a href="boh.php"><div class="section selected"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
+                    <a href="..\user_accept\user_accept.php"><div class="section selected"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
+                    <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
