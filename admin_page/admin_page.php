@@ -20,15 +20,28 @@
         // Query per recuperare il numero degli inventari
         $stmt = $conn->query("SELECT count(*) FROM inventario");
         $num_inventari = $stmt->fetchColumn(); 
+
         // Query per recuperare il numero dei tecnici
         $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attivo'");
         $num_tecnici = $stmt->fetchColumn(); 
+
         // Query per recuperare il numero degli account da verificare
         $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attesa'");
         $num_account_da_verificare = $stmt->fetchColumn();
+
         // Query per recuperare il materiale non assegnato ad alcuna classe
         $stmt = $conn->query("SELECT count(*) FROM dotazione WHERE ID_aula IS NULL");
         $num_dotazioni_non_assegnate = $stmt->fetchColumn();
+
+        //Query per recuperare i dati degli ultimi inventari e i relativi tecnici
+        $stmt = $conn->prepare("
+        SELECT i.ID_aula, u.username, i.data_inventario
+        FROM inventario i
+        LEFT JOIN utente u ON i.ID_tecnico = u.username
+        ORDER BY i.data_inventario DESC
+        ");
+        $stmt->execute();
+        $inventari_piu_tecnici = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -119,9 +132,18 @@
 
                 <!-- task recenti -->
                 <div class="log-container">
-                    <div class="log-title">Attività recenti</div>
+                    <div class="log-title"><span>Attività recenti</span></div>
                     <div class="log-content">
-                        
+                        <table>
+                            <?php 
+                                $i = 0; //serve a prendere solo le ultime 3 azioni
+                                foreach ($inventari_piu_tecnici as $inventario_piu_tecnico) {
+                                    echo $inventario_piu_tecnico["username"]." ha aggiornato ".$inventario_piu_tecnico["ID_aula"]." in data ".$inventario_piu_tecnico["data_inventario"]."<br>";
+                                    $i++;
+                                    if($i == 3) exit;
+                                }
+                            ?>
+                        </table>
                     </div>
                 </div>
             </div>

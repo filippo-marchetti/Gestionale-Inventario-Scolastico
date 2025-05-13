@@ -67,6 +67,7 @@
         <link rel="stylesheet" href="..\..\assets\css\background.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+        <link rel="stylesheet" href="user_accept.css">
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -109,7 +110,7 @@
                             <td>Cognome</td>
                             <td>Email</td>
                             <td>Scuola</td>
-                            <td>Azioni</td>
+                            <td style="text-align: center;">Azioni</td>
                         </thead>
                         <tbody>
                             <?php
@@ -125,7 +126,7 @@
                                         echo "<td>".$utente['email']."</td>";
                                         echo "<td>".$utente['scuola_appartenenza']."</td>";
                                         ?>
-                                            <td>
+                                            <td style="text-align: center;">
                                                 <form method="POST">
                                                     <button type="submit" name="accetta" value="<?php echo $utente['username']?>" class="btn-action btn-blu">
                                                         <i class="fas fa-check"></i>

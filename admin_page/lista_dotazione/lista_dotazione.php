@@ -32,9 +32,11 @@
         <link rel="stylesheet" href="..\..\assets\css\background.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+        <link rel="stylesheet" href="lista_dotazione.css">
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="lista_dotazione.js"></script>
     </head>
     <body>
         <div class="container">
@@ -60,17 +62,23 @@
                     </a>
                 </div>
                 <h1>Dotazioni</h1>
+                <div class="actions">
+                    <input type="text" id="filterInput" placeholder="Cerca per nome o codice" class="filter-input">
+                    <form method="post">
+                        <button class="btn-add"><i class="fas fa-plus"></i>Aggiungi</button>
+                    </form>
+                </div>
 
-                <div class="user-request">
+                <div class="lista-dotazioni">
                     <table>
                         <thead>
-                            <td>Codice</td>
-                            <td>Nome</td>
-                            <td>Categoria</td>
-                            <td>Descrizione</td>
-                            <td>Prezzo Stimato</td>
-                            <td>Aula</td>
-                            <td>Azioni</td>
+                            <td onclick="sortTable(0)">Codice</td>
+                            <td onclick="sortTable(1)">Nome</td>
+                            <td onclick="sortTable(2)">Categoria</td>
+                            <td onclick="sortTable(3)">Descrizione</td>
+                            <td onclick="sortTable(4)">Prezzo Stimato</td>
+                            <td onclick="sortTable(5)">Aula</td>
+                            <td style="text-align: center;">Azioni</td>
                         </thead>
                         <tbody>
                             <?php
@@ -87,14 +95,16 @@
                                         echo "<td>".$dotazione['prezzo_stimato']."€</td>";
                                         echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
-                                            <td>
+                                            <td style="text-align: center;">
                                                 <form method="POST">
-                                                    <button type="submit" name="accetta" class="btn-action btn-blu">
+                                                    <button name="modifica" class="btn-action btn-green">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    <button name="qrcode" class="btn-action btn-blu">
                                                         <i class="fas fa-qrcode"></i>
                                                     </button>
-                                                    
-                                                    <button type="submit" name="rifiuta" class="btn-action btn-red">
-                                                        <i class="fas fa-times"></i>
+                                                    <button name="rifiuta" class="btn-action btn-red">
+                                                        <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
                                             </td>
