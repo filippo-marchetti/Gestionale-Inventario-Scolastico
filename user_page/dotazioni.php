@@ -22,7 +22,7 @@ $codiceInventario = $_GET['codice'];
 // Recupera le dotazioni relative a quell'inventario
 try {
     $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
+        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, i.ID_aula
         FROM dotazione d
         INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
         INNER JOIN inventario i ON i.codice_inventario = ri.codice_inventario
@@ -42,36 +42,6 @@ try {
     <title>Dotazioni dell'inventario <?= htmlspecialchars($codiceInventario) ?></title>
     <link rel="stylesheet" href="..\assets\css\shared_style_login_register.css">
     <link rel="stylesheet" href="..\assets\css\background.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            max-width: 900px;
-            margin: 50px auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        .dotazione {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .label {
-            font-weight: bold;
-        }
-        .no-results {
-            color: #777;
-            font-style: italic;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -88,7 +58,7 @@ try {
                     <div><span class="label">Descrizione:</span> <?= htmlspecialchars($d['descrizione']) ?></div>
                     <div><span class="label">Stato:</span> <?= htmlspecialchars($d['stato']) ?></div>
                     <div><span class="label">Prezzo stimato:</span> €<?= htmlspecialchars($d['prezzo_stimato']) ?></div>
-                    <div><span class="label">ID Aula:</span> <?= htmlspecialchars($d['ID_Aula']) ?></div>
+                    <div><span class="label">ID Aula:</span> <?= htmlspecialchars($d['ID_aula']) ?></div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
