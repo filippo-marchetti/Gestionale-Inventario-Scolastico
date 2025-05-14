@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Connessione al database
 $host = 'localhost';
 $db = 'inventariosdarzo';
@@ -18,6 +22,7 @@ if (!isset($_GET['codice'])) {
 }
 
 $codiceInventario = $_GET['codice'];
+echo "<!-- Codice inventario: " . htmlspecialchars($codiceInventario) . " -->";
 
 // Recupera le dotazioni relative a quell'inventario
 try {
@@ -30,6 +35,8 @@ try {
     ");
     $stmt->execute([$codiceInventario]);
     $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo "<!-- Codice inventario: " . htmlspecialchars($codiceInventario) . " -->";
+    echo "<!-- Risultati trovati: " . count($dotazioni) . " -->";
     
 } catch (PDOException $e) {
     die("Errore nella lettura delle dotazioni: " . $e->getMessage());
