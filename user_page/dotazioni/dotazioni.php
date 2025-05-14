@@ -26,17 +26,14 @@ echo "<!-- Codice inventario: " . htmlspecialchars($codiceInventario) . " -->";
 
 // Recupera le dotazioni relative a quell'inventario
 try {
-    $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, i.ID_aula
-        FROM dotazione d
-        INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
-        INNER JOIN inventario i ON i.codice_inventario = ri.codice_inventario
-        WHERE i.codice_inventario = ?
-    ");
-    $stmt->execute([$codiceInventario]);
-    $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo "<!-- Codice inventario: " . htmlspecialchars($codiceInventario) . " -->";
-    echo "<!-- Risultati trovati: " . count($dotazioni) . " -->";
+$stmt = $conn->prepare("
+    SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
+    FROM dotazione d
+    INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
+    WHERE ri.codice_inventario = ?
+");
+$stmt->execute([$codiceInventario]);
+$dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (PDOException $e) {
     die("Errore nella lettura delle dotazioni: " . $e->getMessage());
@@ -48,12 +45,16 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Dotazioni dell'inventario <?= htmlspecialchars($codiceInventario) ?></title>
-    <link rel="stylesheet" href="..\assets\css\shared_style_login_register.css">
-    <link rel="stylesheet" href="..\assets\css\background.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_login_register.css">
+    <link rel="stylesheet" href="..\..\assets\css\background.css">
+    <link rel="stylesheet" href="dotazioni.css">
 </head>
 <body>
     <div class="container">
-        <h1>Dotazioni per l'inventario: <?= htmlspecialchars($codiceInventario) ?></h1>
+        <div class="header-section">
+            <h1>Dotazioni per l'inventario</h1>
+            <div class="subtitle">Codice inventario: <b><?= htmlspecialchars($codiceInventario) ?></b></div>
+        </div>
         <?php if (count($dotazioni) === 0): ?>
             <p class="no-results">Nessuna dotazione trovata per questo inventario.</p>
         <?php else: ?>

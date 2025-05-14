@@ -1,0 +1,64 @@
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+            padding: 36px 28px;
+        }
+        .header-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header-section h1 {
+            color: #2a3b4c;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .header-section .subtitle {
+            color: #5b6b7a;
+            font-size: 1.1em;
+            margin-bottom: 0;
+        }
+        .dotazione {
+            background: #f5f8fa;
+            border: 1px solid #e0e6ed;
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin-bottom: 20px;
+            transition: box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 2px 8px rgba(42,59,76,0.04);
+        }
+        .dotazione:hover {
+            box-shadow: 0 4px 16px rgba(42,59,76,0.10);
+            background: #eaf3fb;
+        }
+        .label {
+            font-weight: 600;
+            color: #1a2330;
+            margin-right: 8px;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .dotazione > div {
+            margin-bottom: 7px;
+            font-size: 1.08em;
+        }
+        .no-results {
+            text-align: center;
+            color: #b23c3c;
+            font-size: 1.15em;
+            margin-top: 40px;
+            background: #fff3f3;
+            border: 1px solid #ffd6d6;
+            border-radius: 8px;
+            padding: 18px;
+            display: inline-block;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 12px 2vw; }
+            .dotazione { padding: 12px 8px; }
+            .label { min-width: 80px; }
+        }

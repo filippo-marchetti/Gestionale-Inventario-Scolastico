@@ -16,22 +16,35 @@ if (!isset($_GET['id'])) {
 }
 
 $idAula = $_GET['id'];
+$messaggio = "";
+
+// Funzione per generare codice inventario unico
+function generaCodiceInventario($conn) {
+    do {
+        $codice = str_pad(strval(random_int(0, 999999)), 6, '0', STR_PAD_LEFT);
+        $stmt = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
+        $stmt->execute([$codice]);
+        $exists = $stmt->fetchColumn();
+    } while ($exists);
+    return $codice;
+}
 
 // Recupera il codice dell'ultimo inventario per quell'aula
 $stmt = $conn->prepare("
-    SELECT codice_inventario 
-    FROM inventario 
-    WHERE ID_Aula = ? 
-    ORDER BY data_inventario DESC 
+    SELECT codice_inventario, descrizione, data_inventario
+    FROM inventario
+    WHERE ID_Aula = ?
+    ORDER BY data_inventario DESC
     LIMIT 1
 ");
 $stmt->execute([$idAula]);
 $lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $dotazioni = [];
-
 if ($lastInventario) {
     $codiceInventario = $lastInventario['codice_inventario'];
+    $descrizioneInventario = $lastInventario['descrizione'];
+    $dataInventario = $lastInventario['data_inventario'];
 
     // Recupera le dotazioni relative a quell'inventario
     $stmt = $conn->prepare("
@@ -43,55 +56,78 @@ if ($lastInventario) {
     $stmt->execute([$codiceInventario]);
     $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// Genera codice nuovo inventario solo se non è POST (così non cambia ad ogni submit)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $codiceNuovoInventario = $_POST['codice_inventario'];
+} else {
+    $codiceNuovoInventario = generaCodiceInventario($conn);
+}
+
+// --- Qui va la gestione POST per salvataggio inventario e dotazioni ---
+
 ?>
 
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
+    <title>Nuovo Inventario</title>
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_login_register.css">
+    <link rel="stylesheet" href="..\..\assets\css\background.css">
+    <link rel="stylesheet" href="nuovo_inventario.css">
 </head>
 <body>
-<div class="container">
-    <h1>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></h1>
-
-    <?php if (count($dotazioni) === 0): ?>
-        <p>Nessuna dotazione trovata per l'ultimo inventario.</p>
-    <?php else: ?>
-        <form action="salva_inventario.php" method="post">
-            <input type="hidden" name="id_aula" value="<?= htmlspecialchars($idAula) ?>">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Presente</th>
-                        <th>Nome</th>
-                        <th>Categoria</th>
-                        <th>Descrizione</th>
-                        <th>Stato</th>
-                        <th>Prezzo Stimato</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($dotazioni as $dot): ?>
-                        <tr>
-                            <td><input type="checkbox" name="presenti[]" value="<?= htmlspecialchars($dot['codice']) ?>" checked></td>
-                            <td><?= htmlspecialchars($dot['nome']) ?></td>
-                            <td><?= htmlspecialchars($dot['categoria']) ?></td>
-                            <td><?= htmlspecialchars($dot['descrizione']) ?></td>
-                            <td><?= htmlspecialchars($dot['stato']) ?></td>
-                            <td><?= htmlspecialchars($dot['prezzo_stimato']) ?> €</td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-
-            <br>
-            <label>Descrizione nuovo inventario:</label><br>
-            <textarea name="descrizione" rows="4" cols="50" required></textarea>
-            <br><br>
-            <button type="submit">Salva Inventario</button>
+    <div class="container">
+        <div class="header-section">
+            <h1>Crea un nuovo inventario</h1>
+            <div class="subtitle">
+                <?php if ($lastInventario): ?>
+                    Ultimo inventario per questa aula: <b><?= htmlspecialchars($codiceInventario) ?></b> (<?= htmlspecialchars($dataInventario) ?>)<br>
+                    <span style="font-size:0.95em;">Descrizione: <?= htmlspecialchars($descrizioneInventario) ?></span>
+                <?php else: ?>
+                    Nessun inventario precedente per questa aula.
+                <?php endif; ?>
+            </div>
+        </div>
+        <form method="post" action="">
+            <div>
+                <label for="codice_inventario" class="label">Codice nuovo inventario:</label>
+                <input type="text" id="codice_inventario" name="codice_inventario" value="<?= htmlspecialchars($codiceNuovoInventario) ?>" readonly required>
+            </div>
+            <div>
+                <label for="descrizione" class="label">Descrizione:</label>
+                <input type="text" id="descrizione" name="descrizione" required>
+            </div>
+            <?php if ($dotazioni): ?>
+                <div style="margin: 30px 0 10px 0; font-weight:600;">Dotazioni presenti nell'ultimo inventario:</div>
+                <?php foreach ($dotazioni as $d): ?>
+                    <div class="dotazione">
+                        <label>
+                            <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>">
+                            <span class="label"><?= htmlspecialchars($d['nome']) ?></span>
+                            <span style="color:#888;">(<?= htmlspecialchars($d['categoria']) ?>)</span>
+                        </label>
+                        <div style="margin-left:28px;">
+                            <span class="label">Codice:</span> <?= htmlspecialchars($d['codice']) ?> |
+                            <span class="label">Descrizione:</span> <?= htmlspecialchars($d['descrizione']) ?> |
+                            <span class="label">Stato:</span> <?= htmlspecialchars($d['stato']) ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <div style="margin: 30px 0 10px 0; font-weight:600;">Aggiungi dotazione non presente:</div>
+            <div>
+                <input type="text" name="nuova_dotazione" placeholder="Codice dotazione">
+                <button type="submit" name="aggiungi_dotazione">Aggiungi dotazione</button>
+            </div>
+            <div style="margin-top:24px;">
+                <button type="submit">Crea inventario</button>
+            </div>
         </form>
-    <?php endif; ?>
-</div>
+        <?php if (isset($messaggio)): ?>
+            <p class="no-results"><?= htmlspecialchars($messaggio) ?></p>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
