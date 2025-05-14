@@ -94,25 +94,27 @@
                                         echo "<td>".$dotazione['prezzo_stimato']."€</td>";
                                         echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
-                                            <td class="td-action-btn">
-                                                <!-- reindirizza alla pagina di modifica -->
-                                                <a href="modifica_dotazione/modifica_dotazione.php?id=123">
-                                                    <button name="modifica" class="btn-action btn-green" value="">
-                                                        <i class="fas fa-pen"></i>
-                                                    </button>
-                                                </a>
-                                                <!-- reindirizza alla pagina del qrcode -->
-                                                <a href="modifica_dotazione/modifica_dotazione.php?id=123">
-                                                    <button name="qrcode" class="btn-action btn-blu">
-                                                        <i class="fas fa-qrcode"></i>
-                                                    </button>
-                                                </a>
-                                                <!-- reindirizza alla pagina di eliminazione -->
-                                                <form method="POST">
-                                                    <button name="elimina" class="btn-action btn-red">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
+                                            <td>
+                                                <div class="td-action-btn">
+                                                    <!-- reindirizza alla pagina di modifica -->
+                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                        <button name="modifica" class="btn-action btn-green" value="">
+                                                            <i class="fas fa-pen"></i>
+                                                        </button>
+                                                    </a>
+                                                    <!-- reindirizza alla pagina del qrcode -->
+                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                        <button name="qrcode" class="btn-action btn-blu">
+                                                            <i class="fas fa-qrcode"></i>
+                                                        </button>
+                                                    </a>
+                                                    <!-- reindirizza alla pagina di eliminazione -->
+                                                    <form method="POST">
+                                                        <button name="elimina" class="btn-action btn-red">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         <?php
                                     echo "</tr>";

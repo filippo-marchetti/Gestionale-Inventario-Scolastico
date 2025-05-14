@@ -73,8 +73,8 @@
     gap: 10px;
     margin-bottom: 20px;
 }
-.td-action-btn{
-    display: flex;
-    justify-content: center;
-    gap: 2px;
+.td-action-btn {
+    display: flex; /* Forza il contenitore a trattare i suoi elementi come blocchi */
+    text-align: center; /* Centra i bottoni orizzontalmente */
 }
+/* Bottoni */
