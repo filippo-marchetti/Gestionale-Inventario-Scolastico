@@ -12,14 +12,12 @@ try {
     die("Connessione fallita: " . $e->getMessage());
 }
 
-// Recupera l'ID dell'aula passato tramite GET
 if (!isset($_GET['id'])) {
     die("ID aula non specificato.");
 }
 
 $idAula = $_GET['id'];
 
-// Recupera gli inventari ordinati dal più recente, con nome scuola
 try {
     $stmt = $conn->prepare("
         SELECT i.codice_inventario, i.data_inventario, i.descrizione, s.nome AS nome_scuola
@@ -40,20 +38,24 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Inventari Aula <?= htmlspecialchars($idAula) ?></title>
-    <link rel="stylesheet" href="..\assets\css\shared_style_login_register.css">
-    <link rel="stylesheet" href="..\assets\css\background.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_login_register.css">
+    <link rel="stylesheet" href="..\..\assets\css\background.css">
+    <link rel="stylesheet" href="inventari.css">
+    <title>Inventari</title>
+        <!-- Font Awesome per icone-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <h1>Inventari dell'Aula <?= htmlspecialchars($idAula) ?></h1>
-        <button></button>
-        <a href="nuovo_inventario.php?id=<?= urlencode($idAula) ?>" class="btn-nuovo">➕ Nuovo Inventario</a>
+
+        <a href="..\nuovo_inventario\nuovo_inventario.php?id=<?= urlencode($idAula) ?>" class="btn-nuovo">➕ Nuovo Inventario</a>
 
         <?php if (count($inventari) === 0): ?>
             <p class="no-results">Nessun inventario trovato per quest'aula.</p>
         <?php else: ?>
             <?php foreach ($inventari as $inv): ?>
-                <a class="inventario" href="dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
+                <a class="inventario" href="..\dotazioni\dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
                     <div><span class="label">Codice inventario:</span> <?= htmlspecialchars($inv['codice_inventario']) ?></div>
                     <div><span class="label">Data inventario:</span> <?= htmlspecialchars($inv['data_inventario']) ?></div>
                     <div><span class="label">Descrizione:</span> <?= htmlspecialchars($inv['descrizione']) ?></div>

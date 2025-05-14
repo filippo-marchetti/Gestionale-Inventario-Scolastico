@@ -30,6 +30,7 @@ try {
     ");
     $stmt->execute([$codiceInventario]);
     $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
 } catch (PDOException $e) {
     die("Errore nella lettura delle dotazioni: " . $e->getMessage());
 }
@@ -46,7 +47,6 @@ try {
 <body>
     <div class="container">
         <h1>Dotazioni per l'inventario: <?= htmlspecialchars($codiceInventario) ?></h1>
-
         <?php if (count($dotazioni) === 0): ?>
             <p class="no-results">Nessuna dotazione trovata per questo inventario.</p>
         <?php else: ?>
