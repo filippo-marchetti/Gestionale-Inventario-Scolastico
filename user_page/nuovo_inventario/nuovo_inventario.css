@@ -1,0 +1,78 @@
+.header-section {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.header-section h1 {
+    color: #2a3b4c;
+    font-size: 2.2em;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+.header-section .subtitle {
+    color: #5b6b7a;
+    font-size: 1.1em;
+    margin-bottom: 0;
+}
+.no-results {
+    text-align: center;
+    color: #b23c3c;
+    font-size: 1.15em;
+    margin-top: 40px;
+    background: #fff3f3;
+    border: 1px solid #ffd6d6;
+    border-radius: 8px;
+    padding: 18px;
+    display: inline-block;
+}
+@media (max-width: 600px) {
+    .container { padding: 12px 2vw; }
+}
+.container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+.dotazione {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 4px solid #ccc;
+}
+.dotazione.spuntata {
+    background-color: #e6ffe6;
+    border-left-color: green;
+}
+.container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+.dotazione {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 4px solid #ccc;
+}
+.dotazione.spuntata {
+    background-color: #e6ffe6;
+    border-left-color: green;
+}
+.btn-scan {
+    display: inline-block;
+    margin: 20px 0;
+    padding: 10px 15px;
+    background-color: #6b5b95;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+.error {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
