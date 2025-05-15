@@ -95,9 +95,9 @@
                                         echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
                                             <td>
-                                                <div class="td-action-btn">
+                                                <div class="div-action-btn">
                                                     <!-- reindirizza alla pagina di modifica -->
-                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                    <a href="modifica_dotazione/modifica_dotazione.php?codice=<?php echo $dotazione['codice']?>">
                                                         <button name="modifica" class="btn-action btn-green" value="">
                                                             <i class="fas fa-pen"></i>
                                                         </button>

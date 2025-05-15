@@ -69,12 +69,13 @@
 }
 .actions {
     display: flex;
-    align-items: center;
+        
     gap: 10px;
     margin-bottom: 20px;
 }
-.td-action-btn {
-    display: flex; /* Forza il contenitore a trattare i suoi elementi come blocchi */
-    text-align: center; /* Centra i bottoni orizzontalmente */
+.div-action-btn {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    gap: 5px;
 }
-/* Bottoni */
