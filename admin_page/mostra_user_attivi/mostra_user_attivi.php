@@ -20,7 +20,7 @@
         } catch (PDOException $e) {
             die("Connessione fallita: " . $e->getMessage());
         }
-        if (isset($_POST['accetta'])) {
+        /*if (isset($_POST['accetta'])) {
             $pk_utente = $_POST['accetta'];
             $scelta = "attivo";
 
@@ -40,21 +40,7 @@
             $stmt->execute();
 
             header("Location: " . $_SERVER['PHP_SELF']);
-        }
-        if (isset($_POST['accept-all'])) {
-            $scelta = "attivo";
-            $stmt = $conn->prepare("UPDATE utente SET stato = :stato WHERE stato = 'attesa'");
-            $stmt->bindParam(':stato', $scelta);
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        } else if (isset($_POST['reject-all'])) {
-            $stmt = $conn->prepare("DELETE FROM utente WHERE stato = 'attesa'");
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        }
-
+        }*/
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -67,7 +53,7 @@
         <link rel="stylesheet" href="..\..\assets\css\background.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
-        <link rel="stylesheet" href="user_accept.css">
+        <link rel="stylesheet" href="mostra_user_attivi.css">
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -82,7 +68,7 @@
                     <br>
                     <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
+                    <a href="mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="..\user_accept\user_accept.php"><div class="section selected"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
                     <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
@@ -99,11 +85,6 @@
                 </div>
                 <h1>Richieste Account</h1>
 
-                <form class="btn-container" method="post">
-                    <button class="btn btn-blu" name="accept-all"><i class="fas fa-check"></i>ACCETTA TUTTI</button>
-                    <button class="btn btn-red" name="reject-all"><i class="fas fa-times"></i>RIFIUTA TUTTI</button>
-                </form>
-
                 <div class="user-request">
                     <table>
                         <thead>
@@ -117,7 +98,7 @@
                         <tbody>
                             <?php
                                 // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM utente WHERE stato = 'attesa'");
+                                $stmt = $conn->query("SELECT * FROM utente WHERE stato = 'attivo'");
                                 $utenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 foreach ($utenti as $utente) {  
