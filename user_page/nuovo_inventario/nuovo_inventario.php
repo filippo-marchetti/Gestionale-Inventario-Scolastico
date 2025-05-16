@@ -76,10 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
         <html lang="it">
         <head>
             <meta charset="UTF-8">
-            <title>Conferma creazione inventario</title>
-            <link rel="stylesheet" href="..\..\..\assets\css\background.css">
-            <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
+            <link rel="stylesheet" href="..\..\assets\css\background.css">
+            <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
             <link rel="stylesheet" href="nuovo_inventario.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         </head>
         <body>
         <div class="container">
