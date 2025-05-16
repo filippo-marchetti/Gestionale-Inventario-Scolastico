@@ -83,7 +83,7 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
-                <h1>Richieste Account</h1>
+                <h1>Utenti attivi</h1>
 
                 <div class="user-request">
                     <table>
