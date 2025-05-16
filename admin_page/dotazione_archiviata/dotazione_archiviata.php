@@ -49,7 +49,7 @@
                     <a href="user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
                     <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
@@ -77,13 +77,12 @@
                             <td>Categoria</td>
                             <td>Descrizione</td>
                             <td>Prezzo Stimato</td>
-                            <td>Aula</td>
-                            <td style="text-align: center;">Azioni</td>
+                            <td>Azioni</td>
                         </thead>
                         <tbody>
                             <?php
                                 // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NOT NULL");
+                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL");
                                 $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 foreach ($dotazioni as $dotazione) {  
@@ -93,7 +92,6 @@
                                         echo "<td>".$dotazione['categoria']."</td>";
                                         echo "<td>".$dotazione['descrizione']."</td>";
                                         echo "<td>".$dotazione['prezzo_stimato']."€</td>";
-                                        echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
                                             <td>
                                                 <div class="div-action-btn">
