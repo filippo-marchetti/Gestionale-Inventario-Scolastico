@@ -78,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
-            <link rel="stylesheet" href="..\..\assets\css\background.css">
-            <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+            <link rel="stylesheet" href="../../assets/css/background.css">
+            <link rel="stylesheet" href="../../assets/css/shared_style_user_admin.css">
             <link rel="stylesheet" href="nuovo_inventario.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         </head>
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
         }
 
         $_SESSION['success_message'] = "Inventario creato con successo!";
-        header("Location: ..\inventari\inventari.php?id=" . urlencode($idAula));
+        header("Location: ../inventari/inventari.php?id=" . urlencode($idAula));
         exit;
     }
 } else {
@@ -157,8 +157,8 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
-    <link rel="stylesheet" href="..\..\..\assets\css\background.css">
-    <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
+    <link rel="stylesheet" href="../../assets/css/background.css">
+    <link rel="stylesheet" href="../assets/css/shared_style_user_admin.css">
     <link rel="stylesheet" href="nuovo_inventario.css">
     <!-- Font Awesome per icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -202,7 +202,22 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
             <h3>Dotazioni presenti nell'ultimo inventario:</h3>
             <div class="dotazioni-list">
                 <?php foreach ($dotazioni as $d): ?>
-                    <?php $spuntata = in_array($d['codice'], $codiciDaSpuntare); ?>
+                    <?php
+                        $spuntata = in_array($d['codice'], $codiciDaSpuntare);
+                        // Controlla se la dotazione è ancora nell'aula corrente
+                        $idAulaDotazione = null;
+                        $nomeAulaDestinazione = null;
+                        $stmtAula = $conn->prepare("SELECT ID_Aula FROM dotazione WHERE codice = ?");
+                        $stmtAula->execute([$d['codice']]);
+                        $idAulaDotazione = $stmtAula->fetchColumn();
+
+                        // Se la dotazione è in un'altra aula, recupera la descrizione dell'aula
+                        if ($idAulaDotazione && $idAulaDotazione != $idAula) {
+                            $stmtNomeAula = $conn->prepare("SELECT ID_Aula FROM aula WHERE ID_Aula = ?");
+                            $stmtNomeAula->execute([$idAulaDotazione]);
+                            $nomeAulaDestinazione = $stmtNomeAula->fetchColumn();
+                        }
+                    ?>
                     <div class="dotazione <?= $spuntata ? 'spuntata' : '' ?>">
                         <label>
                             <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>" <?= $spuntata ? 'checked' : '' ?>>
@@ -213,6 +228,11 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
                             <span><b>Codice:</b> <?= htmlspecialchars($d['codice']) ?></span>
                             <span><b>Stato:</b> <?= htmlspecialchars($d['stato']) ?></span>
                         </div>
+                        <?php if ($idAulaDotazione && $idAulaDotazione != $idAula): ?>
+                            <div class="alert" style="color:#b23c3c; margin-top:6px;">
+                                ⚠️ Questa dotazione ora si trova nell'aula: <b><?= htmlspecialchars($nomeAulaDestinazione ?: $idAulaDotazione) ?></b>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>

@@ -1,66 +1,178 @@
-
-body {
-    font-family: Arial, sans-serif;
-}
-
-.container {
-    max-width: 900px;
-    margin: 50px auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-
-h1 {
-    font-size: 24px;
-    margin-bottom: 25px;
-    color: #1f2937;
-}
-
-.btn-nuovo {
-    display: inline-block;
-    margin-bottom: 25px;
-    padding: 10px 18px;
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: background 0.2s ease-in-out;
-}
-
-.btn-nuovo:hover {
-    background-color: #3fa142;
-}
-
-.inventario {
-    display: block;
-    background-color: #f9fafb;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 15px;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.inventario:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-    background-color: #ffffff;
-}
-
-.label {
-    font-weight: bold;
-    display: inline-block;
-    width: 170px;
-    color: #374151;
-}
-
-.no-results {
-    font-style: italic;
-    color: #777;
-    margin-top: 20px;
-}
+ /* --- CSS principali per layout e tabella, copia/incolla se vuoi tutto in un file --- */
+    .container {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+    }
+    .sidebar {
+        background: #374151;
+        color: #fff;
+        width: 300px;
+        min-width: 220px;
+        padding: 0 0 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 18px 0 0 18px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+    .sidebar .image {
+        margin: 32px 0 16px 0;
+    }
+    .section-container {
+        width: 100%;
+    }
+    .section {
+        padding: 14px 0 14px 32px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .section:hover {
+        background: #48506a;
+    }
+    .section-text {
+        font-size: 1.1rem;
+        margin-left: 10px;
+    }
+    .content {
+        flex: 1;
+        background: #fafafa;
+        border-radius: 0 18px 18px 0;
+        padding: 40px 48px 40px 48px;
+        min-width: 0;
+        position: relative;
+    }
+    .logout {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+    }
+    .logout-btn {
+        color: #e57373;
+        font-size: 1.7rem;
+        transition: color 0.2s;
+    }
+    .logout-btn:hover {
+        color: #b23c3c;
+    }
+    h1 {
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin-bottom: 24px;
+        margin-top: 0;
+    }
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .filter-input {
+        padding: 8px;
+        width: 300px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn-add {
+        background-color: rgb(80, 136, 80);
+        border: none;
+        min-width: 160px;
+        height: 36px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-left: 10px;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+    .btn-add:hover {
+        background-color: rgb(79, 152, 79);
+        color: #fff;
+        text-decoration: none;
+    }
+    .lista-dotazioni {
+        background-color: #fff;
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        overflow-x: auto;
+        padding: 0 0 16px 0;
+    }
+    .lista-dotazioni table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 0.97rem;
+        color: #374151;
+        background: #fff;
+    }
+    .lista-dotazioni thead th, .lista-dotazioni thead td {
+        font-weight: bold;
+        padding: 16px 8px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+        word-wrap: break-word;
+        text-align: center;
+        background: #f7f7f7;
+    }
+    .lista-dotazioni tbody td {
+        max-width: 300px;
+        font-weight: normal;
+        padding: 16px 8px;
+        border-bottom: 1px dashed #d1d5db;
+        vertical-align: middle;
+        word-wrap: break-word;
+        text-align: center;
+    }
+    .no-results {
+        text-align: center;
+        color: #b23c3c;
+        font-weight: bold;
+        padding: 24px 0;
+    }
+    .div-action-btn {
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    .btn-action {
+        border: none;
+        border-radius: 5px;
+        padding: 6px 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: #fff;
+        margin: 0 2px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-green {
+        background-color: rgb(71, 106, 71);
+    }
+    .btn-green:hover {
+        background-color: rgb(84, 139, 84);
+    }
+    .btn-blu {
+        background-color: #2563eb;
+    }
+    .btn-blu:hover {
+        background-color: #1d4ed8;
+    }
+    .btn-red {
+        background-color: #e57373;
+    }
+    .btn-red:hover {
+        background-color: #b23c3c;
+    }
