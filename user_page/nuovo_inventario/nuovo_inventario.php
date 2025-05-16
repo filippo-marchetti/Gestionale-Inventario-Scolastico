@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
     $descrizione = trim($_POST['descrizione']);
     $codiceInventarioPOST = $_POST['codice_inventario'];
     $dotazioniSelezionate = $_POST['dotazione_presente'] ?? [];
+    $conferma = $_POST['conferma'] ?? null;
 
     if (!$descrizione) {
         $errors[] = "La descrizione è obbligatoria.";
@@ -68,7 +69,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
         $errors[] = "Codice inventario mancante.";
     }
 
-    if (empty($errors)) {
+    // Pagina di conferma lato server (senza JS)
+    if (empty($errors) && !$conferma) {
+        ?>
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+            <meta charset="UTF-8">
+            <title>Conferma creazione inventario</title>
+            <link rel="stylesheet" href="..\..\..\assets\css\background.css">
+            <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
+            <link rel="stylesheet" href="nuovo_inventario.css">
+        </head>
+        <body>
+        <div class="container">
+            <h1>Conferma creazione inventario</h1>
+            <p>Sei sicuro di voler creare un nuovo inventario per l'aula <b><?= htmlspecialchars($idAula) ?></b>?</p>
+            <form method="post" class="form-inventario">
+                <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventarioPOST) ?>">
+                <input type="hidden" name="descrizione" value="<?= htmlspecialchars($descrizione) ?>">
+                <?php foreach ($dotazioniSelezionate as $codice): ?>
+                    <input type="hidden" name="dotazione_presente[]" value="<?= htmlspecialchars($codice) ?>">
+                <?php endforeach; ?>
+                <input type="hidden" name="conferma" value="1">
+                <button type="submit" class="btn-save"><i class="fa fa-save"></i> Conferma</button>
+                <a href="nuovo_inventario.php?id=<?= urlencode($idAula) ?>&codice_inventario=<?= urlencode($codiceInventarioPOST) ?>" class="btn-back">Annulla</a>
+            </form>
+        </div>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
+
+    // Se confermato, esegui la creazione inventario
+    if (empty($errors) && $conferma) {
         // Inserisci inventario
         $stmt = $conn->prepare("
             INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_Aula, scuola_appartenenza)
@@ -97,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
         }
 
         $_SESSION['success_message'] = "Inventario creato con successo!";
-        header("Location: inventari.php?id=" . urlencode($idAula));
+        header("Location: ..\inventari\inventari.php?id=" . urlencode($idAula));
         exit;
     }
 } else {
@@ -117,24 +152,26 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\..\assets\css\background.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="nuovo_inventario.css">
-        <title>Admin - Page</title>
-        <!-- Font Awesome per icone-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
+    <link rel="stylesheet" href="..\..\..\assets\css\background.css">
+    <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
+    <link rel="stylesheet" href="nuovo_inventario.css">
+    <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 <div class="container">
-    <h1>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></h1>
+    <h1>Nuovo Inventario<br><span class="subtitle">Aula <?= htmlspecialchars($idAula) ?></span></h1>
 
-    <a href="scan.php?<?= http_build_query([
-        'id' => $idAula,
-        'codice_inventario' => $codiceInventario,
-        'spuntato' => $codiciDaSpuntare
-    ]) ?>" class="btn-scan">📷 Scansiona Dotazione</a>
+    <div class="actions-bar">
+        <a href="scan.php?<?= http_build_query([
+            'id' => $idAula,
+            'codice_inventario' => $codiceInventario,
+            'spuntato' => $codiciDaSpuntare
+        ]) ?>" class="btn-scan"><i class="fa fa-qrcode"></i> Scansiona Dotazione</a>
+    </div>
 
     <?php if (!empty($errors)): ?>
         <div class="error">
@@ -146,34 +183,42 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
         </div>
     <?php endif; ?>
 
-    <form method="post">
+    <form method="post" class="form-inventario">
         <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>">
 
-        <label>Codice Inventario:</label>
-        <input type="text" value="<?= htmlspecialchars($codiceInventario) ?>" readonly><br><br>
+        <div class="form-group">
+            <label for="codice_inventario">Codice Inventario:</label>
+            <input type="text" id="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>" readonly>
+        </div>
 
-        <label>Descrizione:</label>
-        <input type="text" name="descrizione" required value="<?= isset($_POST['descrizione']) ? htmlspecialchars($_POST['descrizione']) : '' ?>"><br><br>
+        <div class="form-group">
+            <label for="descrizione">Descrizione:</label>
+            <input type="text" id="descrizione" name="descrizione" required value="<?= isset($_POST['descrizione']) ? htmlspecialchars($_POST['descrizione']) : '' ?>">
+        </div>
 
         <?php if ($dotazioni): ?>
-            <h3>Dotazioni già presenti nell'ultimo inventario:</h3>
-            <?php foreach ($dotazioni as $d): ?>
-                <?php $spuntata = in_array($d['codice'], $codiciDaSpuntare); ?>
-                <div class="dotazione <?= $spuntata ? 'spuntata' : '' ?>">
-                    <label>
-                        <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>"
-                            <?= $spuntata ? 'checked' : '' ?>>
-                        <strong><?= htmlspecialchars($d['nome']) ?></strong> (<?= htmlspecialchars($d['categoria']) ?>)
-                    </label>
-                    <br>
-                    <span>Codice: <?= htmlspecialchars($d['codice']) ?> | Stato: <?= htmlspecialchars($d['stato']) ?></span>
-                </div>
-            <?php endforeach; ?>
+            <h3>Dotazioni presenti nell'ultimo inventario:</h3>
+            <div class="dotazioni-list">
+                <?php foreach ($dotazioni as $d): ?>
+                    <?php $spuntata = in_array($d['codice'], $codiciDaSpuntare); ?>
+                    <div class="dotazione <?= $spuntata ? 'spuntata' : '' ?>">
+                        <label>
+                            <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>" <?= $spuntata ? 'checked' : '' ?>>
+                            <span class="dotazione-nome"><?= htmlspecialchars($d['nome']) ?></span>
+                            <span class="dotazione-cat">(<?= htmlspecialchars($d['categoria']) ?>)</span>
+                        </label>
+                        <div class="dotazione-info">
+                            <span><b>Codice:</b> <?= htmlspecialchars($d['codice']) ?></span>
+                            <span><b>Stato:</b> <?= htmlspecialchars($d['stato']) ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         <?php else: ?>
-            <p>Nessuna dotazione nell'ultimo inventario.</p>
+            <p class="no-dotazioni">Nessuna dotazione nell'ultimo inventario.</p>
         <?php endif; ?>
 
-        <br><button type="submit">💾 Crea Inventario</button>
+        <button type="submit" class="btn-save"><i class="fa fa-save"></i> Crea Inventario</button>
     </form>
 </div>
 </body>

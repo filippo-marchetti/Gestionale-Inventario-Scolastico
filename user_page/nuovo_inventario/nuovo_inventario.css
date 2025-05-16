@@ -1,78 +1,94 @@
-.header-section {
-    text-align: center;
-    margin-bottom: 32px;
+/* nuovo_inventario.css */
+
+body {
+    background: #f4f7fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
-.header-section h1 {
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+    padding: 36px 28px;
+}
+
+h1 {
+    text-align: center;
     color: #2a3b4c;
+    margin-bottom: 32px;
     font-size: 2.2em;
-    margin-bottom: 8px;
     letter-spacing: 1px;
 }
-.header-section .subtitle {
-    color: #5b6b7a;
-    font-size: 1.1em;
-    margin-bottom: 0;
+
+label {
+    font-weight: 600;
+    color: #1a2330;
+    margin-bottom: 6px;
+    display: block;
 }
-.no-results {
-    text-align: center;
-    color: #b23c3c;
-    font-size: 1.15em;
-    margin-top: 40px;
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    border: 1px solid #cfd8dc;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #f9fbfc;
+    transition: border 0.2s;
+}
+
+input[type="text"]:focus {
+    border-color: #1976d2;
+    outline: none;
+}
+
+button[type="submit"], .btn-scan {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 28px;
+    font-size: 1.08em;
+    cursor: pointer;
+    margin-top: 18px;
+    transition: background 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button[type="submit"]:hover, .btn-scan:hover {
+    background: #125ea7;
+}
+
+.dotazione {
+    background: #f5f8fa;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 14px;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(42,59,76,0.04);
+}
+
+.dotazione.spuntata {
+    background: #eaffea;
+    border-color: #b2ffb2;
+}
+
+.error {
     background: #fff3f3;
     border: 1px solid #ffd6d6;
+    color: #b23c3c;
     border-radius: 8px;
-    padding: 18px;
-    display: inline-block;
+    padding: 14px 18px;
+    margin-bottom: 18px;
 }
+
 @media (max-width: 600px) {
     .container { padding: 12px 2vw; }
-}
-.container {
-    max-width: 900px;
-    margin: 50px auto;
-    padding: 25px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.1);
-}
-.dotazione {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-left: 4px solid #ccc;
-}
-.dotazione.spuntata {
-    background-color: #e6ffe6;
-    border-left-color: green;
-}
-.container {
-    max-width: 900px;
-    margin: 50px auto;
-    padding: 25px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
-}
-.dotazione {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-left: 4px solid #ccc;
-}
-.dotazione.spuntata {
-    background-color: #e6ffe6;
-    border-left-color: green;
-}
-.btn-scan {
-    display: inline-block;
-    margin: 20px 0;
-    padding: 10px 15px;
-    background-color: #6b5b95;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-}
-.error {
-    color: red;
-    font-weight: bold;
-    margin-bottom: 20px;
+    h1 { font-size: 1.3em; }
+    button, .btn-scan { width: 100%; }
 }

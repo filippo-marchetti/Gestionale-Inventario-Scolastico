@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $giaPresente = $stmt->fetchColumn();
 
         if ($giaPresente) {
-            // già presente → torna con lista spuntati aggiornata
             $spuntati[] = $codiceDotazione;
         } else {
             $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = ?");
@@ -41,11 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($dotazione) {
-                // Aggiungi riga_inventario
                 $stmt = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
                 $stmt->execute([$codiceDotazione, $codiceInventario]);
 
-                // Aggiorna aula
                 $stmt = $conn->prepare("UPDATE dotazione SET ID_Aula = ? WHERE codice = ?");
                 $stmt->execute([$idAula, $codiceDotazione]);
 
@@ -61,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'codice_inventario' => $codiceInventario,
                 'spuntato' => $spuntati
             ]);
-            header("Location: nuovo_inventario.php?$query");
+            header("Location: scan.php?$query");
             exit;
         }
     }
@@ -71,32 +68,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\..\assets\css\background.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="scan.css">
-        <title>Admin - Page</title>
-        <!-- Font Awesome per icone-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scansione Dotazione - Aula <?= htmlspecialchars($idAula) ?></title>
+    <link rel="stylesheet" href="../../assets/css/background.css">
+    <link rel="stylesheet" href="../assets/css/shared_style_user_admin.css">
+    <link rel="stylesheet" href="scan.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 <div class="container">
-    <h1>Scansione Dotazione</h1>
-    <form method="post">
-        <input type="text" name="codice_dotazione" placeholder="Inserisci codice dotazione..." required>
-        <br>
-        <button type="submit">Verifica / Aggiungi</button>
-    </form>
-    <?php if ($messaggio): ?>
-        <div class="message"><?= htmlspecialchars($messaggio) ?></div>
+    <h1>Scansione Dotazione<br><span class="subtitle">Aula <?= htmlspecialchars($idAula) ?></span></h1>
+
+    <div class="scan-area">
+        <form method="post" class="form-scan" autocomplete="off">
+            <label for="codice_dotazione"><i class="fa fa-barcode"></i> Inserisci o scansiona il codice dotazione:</label>
+            <input type="text" id="codice_dotazione" name="codice_dotazione" autofocus autocomplete="off" required>
+            <div id="reader" style="width:320px; margin:0 auto 18px auto; display:none;"></div>
+            <button type="button" id="start-qr" class="btn-scan" style="margin-right:10px;"><i class="fa fa-qrcode"></i> Scansiona QR</button>
+            <button type="submit" class="btn-scan"><i class="fa fa-plus"></i> Aggiungi</button>
+        </form>
+        <div class="info" style="margin-top:10px; color:#1976d2;">
+            Puoi inserire manualmente il codice o usare la fotocamera per scansionare il QR code.
+        </div>
+        <?php if ($messaggio): ?>
+            <div class="error"><?= htmlspecialchars($messaggio) ?></div>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($spuntati)): ?>
+        <div class="dotazioni-list">
+            <h3>Dotazioni scansionate:</h3>
+            <ul>
+                <?php foreach ($spuntati as $codice): ?>
+                    <li><i class="fa fa-check-circle" style="color:green"></i> <?= htmlspecialchars($codice) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
     <?php endif; ?>
-    <br>
-    <a href="nuovo_inventario.php?<?= http_build_query([
-        'id' => $idAula,
-        'codice_inventario' => $codiceInventario,
-        'spuntato' => $spuntati
-    ]) ?>">⬅ Torna all'inventario</a>
+
+    <div class="actions-bar">
+        <a href="nuovo_inventario.php?<?= http_build_query([
+            'id' => $idAula,
+            'codice_inventario' => $codiceInventario,
+            'spuntato' => $spuntati
+        ]) ?>" class="btn-back"><i class="fa fa-arrow-left"></i> Torna al nuovo inventario</a>
+    </div>
 </div>
+<script>
+let qrStarted = false;
+document.getElementById('start-qr').onclick = function() {
+    if (qrStarted) return;
+    qrStarted = true;
+    document.getElementById('reader').style.display = "block";
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+            document.getElementById('codice_dotazione').value = qrCodeMessage;
+            html5QrCode.stop();
+            qrStarted = false;
+            document.getElementById('reader').innerHTML = "";
+            document.getElementById('reader').style.display = "none";
+        },
+        errorMessage => {}
+    ).catch(err => {
+        alert("Errore nell'accesso alla fotocamera: " + err);
+        qrStarted = false;
+        document.getElementById('reader').style.display = "none";
+    });
+};
+</script>
 </body>
 </html>
