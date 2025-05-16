@@ -1,64 +1,97 @@
 <?php
-    session_start();
+session_start();
 
-    //info database
-    $host = 'localhost';
-    $db = 'inventariosdarzo';
-    $user = 'root';
-    $pass = '';
+// Info database
+$host = 'localhost';
+$db = 'inventariosdarzo';
+$user = 'root';
+$pass = '';
 
-    $username = $_SESSION['username'];
-    $role = $_SESSION['role'];
+$username = $_SESSION['username'] ?? null;
+$role = $_SESSION['role'] ?? null;
 
-    $codice = $_GET['codice'];
+$codice = $_GET['codice'] ?? null;
 
-    if(!is_null($username) && $role == "admin"){
-        try {
+$errors = [];
+
+if (!is_null($username) && $role === "admin") {
+    try {
         $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Connessione fallita: " . $e->getMessage());
-        }
-        if (isset($_GET['codice'])) {
-            
-            $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = :codice");
-            $stmt->bindParam(':codice', $codice, PDO::PARAM_STR);
+    } catch (PDOException $e) {
+        die("Connessione fallita: " . $e->getMessage());
+    }
+
+    if ($codice !== null) {
+        $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = :codice");
+        $stmt->bindParam(':codice', $codice, PDO::PARAM_STR);
+        $stmt->execute();
+        $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stmt = $conn->prepare("SELECT ID_categoria FROM categoria");
+        $stmt->execute();
+        $elencoCategorie = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $stmt = $conn->prepare("SELECT ID_aula FROM aula");
+        $stmt->execute();
+        $elencoAule = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (isset($_POST['salva'])) {
+            // Recupera dati dal form
+            $nome = $_POST['nome'];
+            $descrizione = $_POST['descrizione'];
+            $codiceCorrente = $_POST['codice'];
+            $categoria = $_POST['categoria'];
+            $aula = $_POST['aula'];
+            $prezzoInput = $_POST['prezzo'];
+            $prezzoPulito = preg_replace('/[^0-9,.]/', '', $prezzoInput);
+            $prezzoPulito = str_replace(',', '.', $prezzoPulito);
+
+            // Controlli
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE nome = :nome AND codice != :codice");
+            $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+            $stmt->bindParam(':codice', $codiceCorrente, PDO::PARAM_STR);
             $stmt->execute();
-            $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
+            $nomeEsiste = $stmt->fetchColumn();
 
-            // Recupera tutte le categorie da inserire nella select
-            $stmtCategorie = $conn->prepare("SELECT ID_categoria FROM categoria");
-            $stmtCategorie->execute();
-            $elencoCategorie = $stmtCategorie->fetchAll(PDO::FETCH_COLUMN);
+            if ($nomeEsiste > 0) {
+                $errors["nome"] = "Il nome inserito è già presente in un'altra dotazione";
+            }
+            if (!is_numeric($prezzoPulito) || floatval($prezzoPulito) < 0) {
+                $errors["prezzo"] = "Il prezzo deve essere un numero positivo";
+            }
+            if (!in_array($categoria, $elencoCategorie)) {
+                $errors["categoria"] = "La categoria selezionata non è valida";
+            }
+            if (!in_array($aula, $elencoAule)) {
+                $errors["aula"] = "L'aula selezionata non è valida";
+            }
 
-            // Recupera tutte le aule da inserire nella select
-            $stmtAule = $conn->prepare("SELECT ID_aula FROM aula");
-            $stmtAule->execute();
-            $elencoAule = $stmtAule->fetchAll(PDO::FETCH_COLUMN);
-
-            if(isset($_POST['save'])){
-                $stmt = $conn->prepare("UPDATE dotazione SET nome = :nome, descrizione = :descrizione, prezzo_stimato = :prezzo_stimato, aula = :aula WHERE codice = :codice");
-
-                $stmt->bindParam(':nome', $_POST["nome"], PDO::PARAM_STR);
-                $stmt->bindParam(':descrizione', $_POST["descrizione"], PDO::PARAM_STR);
-                $stmt->bindParam(':prezzo_stimato', $_POST["prezzo"], PDO::PARAM_STR); // o PARAM_INT se è numerico intero
-                $stmt->bindParam(':aula', $_POST["aula"], PDO::PARAM_STR);
-                $stmt->bindParam(':codice', $_POST["codice"], PDO::PARAM_STR);
-
+            // Aggiunamento dei parametri
+            if (empty($errors)) {
+                $stmt = $conn->prepare("UPDATE dotazione SET nome = :nome, descrizione = :descrizione, prezzo_stimato = :prezzo_stimato, ID_aula = :aula, categoria = :categoria WHERE codice = :codice");
+                $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+                $stmt->bindParam(':descrizione', $descrizione, PDO::PARAM_STR);
+                $stmt->bindParam(':prezzo_stimato', $prezzoPulito, PDO::PARAM_STR);
+                $stmt->bindParam(':aula', $aula, PDO::PARAM_STR);
+                $stmt->bindParam(':categoria', $categoria, PDO::PARAM_STR);
+                $stmt->bindParam(':codice', $codiceCorrente, PDO::PARAM_STR);
                 $stmt->execute();
 
+                header("Location: ../lista_dotazione.php");
             }
-            if(isset($_POST['reset'])){
-                
-            }
-        } else {
-            // Se il codice non è passato, reindirizza o mostra un errore
-            die("Codice non fornito.");
+        }else if (isset($_POST['reset'])) {
+            header("Location: " . $_SERVER['REQUEST_URI']);
         }
-    }else{
-        header("Location: ..\logout\logout.php");
+    } else {
+        die("Codice non fornito.");
     }
+} else {
+    header("Location: ../../logout/logout.php");
+    exit;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -105,11 +138,14 @@
                     <form action="" method="post">
                         <div class="form-group">
                             <label for="codice">Codice</label>
-                            <input type="text" name="codice" value="<?php echo $dotazione['codice'] ?>">
+                            <input type="text" name="codice" readonly value="<?php echo $dotazione['codice']?>">
                         </div>
                         <div class="form-group">
                             <label for="nome">Nome</label>
                             <input type="text" name="nome" value="<?php echo $dotazione['nome'] ?>">
+                            <?php if (isset($errors['nome'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['nome'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="categoria">Categoria</label>
@@ -120,6 +156,9 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php if (isset($errors['categoria'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['categoria'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="descrizione">Descrizione</label>
@@ -127,7 +166,12 @@
                         </div>
                         <div class="form-group">
                             <label for="prezzo">Prezzo Stimato</label>
-                            <input type="text" name="prezzo" value="<?php echo $dotazione['prezzo_stimato'] ?>€">
+                            <div class="input-with-euro">
+                                <input type="number" name="prezzo" step="0.1" min="0" value="<?php echo floatval($dotazione['prezzo_stimato']) ?>">
+                            </div>
+                            <?php if (isset($errors['prezzo'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['prezzo'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="ID_aula">Aula</label>
@@ -138,6 +182,9 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php if (isset($errors['aula'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['aula'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <input class="save" type="submit" name="salva" value="Salva Modifiche">
