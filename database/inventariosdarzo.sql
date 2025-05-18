@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 12, 2025 alle 16:37
+-- Creato il: Mag 18, 2025 alle 17:59
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -59,7 +59,9 @@ CREATE TABLE `aula` (
 --
 
 INSERT INTO `aula` (`ID_aula`, `descrizione`, `tipologia`) VALUES
+('29', 'lo fanno', 'aula'),
 ('A7', 'nn', 'Aula'),
+('INFO2', 'whatsapp', 'laboratorio'),
 ('INFO4', 'BOP', 'Laboratorio');
 
 -- --------------------------------------------------------
@@ -79,7 +81,9 @@ CREATE TABLE `categoria` (
 --
 
 INSERT INTO `categoria` (`ID_categoria`, `descrizione`, `indice_decadimento`) VALUES
-('Computer', 'john', 0.0049999999);
+('banco', 'ligma', 0.0000000000),
+('Computer', 'john', 0.0049999999),
+('proiettore', 'proietta le cose', 0.5000000000);
 
 -- --------------------------------------------------------
 
@@ -102,10 +106,12 @@ CREATE TABLE `dotazione` (
 --
 
 INSERT INTO `dotazione` (`codice`, `nome`, `categoria`, `descrizione`, `stato`, `prezzo_stimato`, `ID_aula`) VALUES
-('6789', 'PC77', 'Computer', NULL, 'Presente', 40.00, NULL),
-('SA08', 'PC0', 'Computer', 'dcv', 'Presente', 50.00, 'INFO4'),
-('SA09', 'PC7', 'Computer', 'dvv', 'Presente', 30.00, 'A7'),
-('SA10', 'PC9', 'Computer', 'dc', 'Presente', 50.00, 'INFO4');
+('1', 'PC10', 'Computer', 'pc', 'scartato', 50.00, 'INFO4'),
+('12345', 'allah', 'banco', 'allah', 'archiviato', 0.00, NULL),
+('12345678', 'Proiettore5', 'proiettore', 's', 'presente', 50.00, '29'),
+('3', 'banco', 'banco', 'pll', 'archiviato', 0.00, 'INFO4'),
+('4', 'PC12', 'Computer', 'iii', 'scartato', 50.00, 'INFO4'),
+('5', 'PC9', 'Computer', 'fgf', 'archiviato', 0.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -118,18 +124,17 @@ CREATE TABLE `inventario` (
   `data_inventario` date DEFAULT NULL,
   `descrizione` text DEFAULT NULL,
   `ID_aula` varchar(20) NOT NULL,
-  `scuola_appartenenza` varchar(10) DEFAULT NULL
+  `scuola_appartenenza` varchar(10) DEFAULT NULL,
+  `ID_tecnico` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_roman_ci;
 
 --
 -- Dump dei dati per la tabella `inventario`
 --
 
-INSERT INTO `inventario` (`codice_inventario`, `data_inventario`, `descrizione`, `ID_aula`, `scuola_appartenenza`) VALUES
-('120400', '2024-06-13', 'sss', 'INFO4', 'REIS00400D'),
-('120500', '2025-05-14', NULL, 'A7', 'REIS00400D'),
-('120600', '2026-04-24', NULL, 'A7', 'REIS00400D'),
-('120956', '2024-06-05', 'dai c\'andom', 'A7', 'REIS00400D');
+INSERT INTO `inventario` (`codice_inventario`, `data_inventario`, `descrizione`, `ID_aula`, `scuola_appartenenza`, `ID_tecnico`) VALUES
+('497029', '2025-05-16', '88', 'INFO4', NULL, ''),
+('683642', '2025-05-16', '77', 'INFO2', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -148,8 +153,9 @@ CREATE TABLE `riga_inventario` (
 --
 
 INSERT INTO `riga_inventario` (`ID_riga_inventario`, `codice_dotazione`, `codice_inventario`) VALUES
-(1, '0000', '120956'),
-(2, '0000', '120400');
+(19, '1', '956194'),
+(20, '1', '683642'),
+(21, '1', '497029');
 
 -- --------------------------------------------------------
 
@@ -191,9 +197,7 @@ CREATE TABLE `utente` (
 --
 
 INSERT INTO `utente` (`username`, `nome`, `cognome`, `email`, `password`, `stato`, `scuola_appartenenza`) VALUES
-('filippo.tecnico', 'filippo', 'tecnico', 'filippo.tecnico@gmail.com', '1234', 'attesa', 'REIS00400D'),
-('tecnico', 'ivan', 'il terribile', 'tec@gmail.com', '1234', 'attivo', 'REIS00400D'),
-('tecnico1', 'q', 'q', 'tec1@gmail.com', '1234', 'attesa', 'REIS00400D');
+('FilippoTecnico', 'Filippo', 'Sicilia', 'filiipomatchetti@morto.com', 'ligma', 'attivo', 'REIS00400D');
 
 --
 -- Indici per le tabelle scaricate
@@ -263,7 +267,7 @@ ALTER TABLE `utente`
 -- AUTO_INCREMENT per la tabella `riga_inventario`
 --
 ALTER TABLE `riga_inventario`
-  MODIFY `ID_riga_inventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_riga_inventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Limiti per le tabelle scaricate
