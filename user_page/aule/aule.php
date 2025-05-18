@@ -79,25 +79,32 @@ if (!is_null($username)) {
                         <td>Tipologia</td>
                         <td>Descrizione</td>
                         <td>Numero Inventari</td>
+                        <td>Numero Dotazioni</td>
                         <td style="text-align: center;">Azioni</td>
                     </thead>
                 <tbody>
                         <?php foreach ($aule as $aula): 
+                            //Numero inventari
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM inventario WHERE ID_aula = ?");
                             $stmt->execute([$aula['ID_aula']]);
                             $numInv = $stmt->fetchColumn();
+                            //Numero dotazioni
+                            $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE ID_aula = ?");
+                            $stmt->execute([$aula['ID_aula']]);
+                            $numDot = $stmt->fetchColumn();
                             echo "<tr>";
                             echo "<td>".$aula['ID_aula']."</td>";
                             echo "<td>".$aula['tipologia']."</td>";
                             echo "<td>".$aula['descrizione']."</td>";
                             echo "<td>".$numInv."</td>";
+                            echo "<td>".$numDot."</td>";
                         ?>
                         <td>
                             <div class="div-action-btn">
                                 <a href="../inventari/inventari.php?id=<?php echo $aula['ID_aula'] ?>" >
                                     <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
                                 </a>
-                                <a href="generazione_QR_aula/generazione_QR_aula.php?id=<?php echo $aula['ID_aula']; ?>">
+                                <a href="..\..\admin_page\generazione_QR\genera_pdf_aule.php?ID_aula=<?php echo $aula['ID_aula']; ?>" target="_BLANK" <?php if($numDot == 0) echo "onclick='return false;'"?>>
                                     <button name="qrcode" class="btn-action btn-blu">
                                         <i class="fas fa-qrcode"></i>
                                     </button>

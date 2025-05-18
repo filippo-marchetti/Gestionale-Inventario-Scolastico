@@ -120,8 +120,8 @@
                                                             <i class="fas fa-pen"></i>
                                                         </button>
                                                     </a>
-                                                    <!-- reindirizza alla pagina del qrcode -->
-                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                    <!-- apre il pdf con il qrcode -->
+                                                    <a href="..\generazione_QR\genera_pdf.php?id=<?php echo $dotazione['codice']; ?>" target="_blank">
                                                         <button name="qrcode" class="btn-action btn-blu">
                                                             <i class="fas fa-qrcode"></i>
                                                         </button>
