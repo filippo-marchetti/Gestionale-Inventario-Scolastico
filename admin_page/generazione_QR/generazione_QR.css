@@ -1,55 +1,94 @@
+/* Contenitore del QR */
 .show-qr {
-    background-color: white;
-    width: 100%;
-    height: 70%;
-    margin-top: 20px;
-    max-width: 50vw;
-    overflow-y: auto;
-    align-items: center;
-    text-align: center;
-    align-self: center;
+    margin: 32px auto 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 32px 24px 32px 24px;
+    width: fit-content;
     position: relative;
+    min-width: 320px;
 }
-/* Angoli in alto a sistra e in alto a destra */
+
+/* Angoli decorativi */
 .show-qr::before,
-.show-qr::after {   
+.show-qr::after,
+.corner-bl,
+.corner-br {
     content: "";
     position: absolute;
-    width: 140px;
-    height: 140px;
-    border: 15px solid #000;
+    width: 160px;
+    height: 8px;
+    background: #111;
+    border-radius: 4px;
 }
-.show-qr::before {
-    top: 0;
-    left: 0;
-    border-right: none;
-    border-bottom: none;
+.show-qr::before { top: 0; left: 0; }
+.show-qr::after { top: 0; right: 0; transform: rotate(90deg);}
+.corner-bl { left: 0; bottom: 0; transform: rotate(270deg);}
+.corner-br { right: 0; bottom: 0; transform: rotate(180deg);}
+
+/* Immagine QR */
+.qr-code {
+    display: block;
+    margin: 0 auto;
+    width: 160px;
+    max-width: 160px;
+    height: auto;
 }
-.show-qr::after {
-    top: 0;
-    right: 0;
-    border-left: none;
-    border-bottom: none;
+
+/* Pulsante stampa */
+.print-btn {
+    margin: 24px 0 0 0;
+    padding: 10px 22px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    display: block;
 }
-/* Angoli in basso a sistra e in basso a destra */
-.show-qr .corner-bl, .show-qr .corner-br {
-    position: absolute;
-    width: 140px;
-    height: 140px;
-    border: 15px solid;
+.print-btn:hover {
+    background: #0056b3;
 }
-.show-qr .corner-bl {
-    bottom: 0;
-    left: 0;
-    border-top: none;
-    border-right: none;
-}
-.show-qr .corner-br {
-    bottom: 0;
-    right: 0;
-    border-top: none;
-    border-left: none;
-}
-.qr-code{
-    width: 500px;
+
+/* Bordo tratteggiato solo in stampa e riduzione dimensioni */
+@media print {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+    .print-btn, .logout, .sidebar, h1, .corner-bl, .corner-br {
+        display: none !important;
+    }
+    .print-border {
+        border: 2px dashed #222 !important;
+        padding: 18px !important;
+        display: inline-block !important;
+        margin: 0 auto !important;
+        background: #fff !important;
+        box-sizing: border-box !important;
+        /* Riduci tutto al 50% */
+        transform: scale(0.5);
+        transform-origin: top left;
+        position: static !important;
+        left: auto !important;
+    }
+    .qr-code {
+        width: 120px !important;
+        max-width: 120px !important;
+        height: auto !important;
+        margin: 0 auto !important;
+        display: block !important;
+    }
+    .show-qr {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #fff !important;
+        min-width: 0 !important;
+    }
 }

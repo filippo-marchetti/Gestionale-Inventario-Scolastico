@@ -2,7 +2,9 @@
 include('phpqrcode/qrlib.php');
 
 $data = $_GET['id'] ?? '';
-$size = 10;
+$size = 5; // QR più piccolo
+$fontSize = 16;
+$textPadding = 4;
 
 if (!empty($data)) {
     // Crea QR temporaneo
@@ -14,9 +16,7 @@ if (!empty($data)) {
     $qrHeight = imagesy($qrImage);
 
     // Imposta font
-    $fontSize = 30; // ATTENZIONE: usare valori realistici, tipo 14-30
     $fontPath = __DIR__ . '/ARIAL.TTF'; // assicurati che esista
-    $textPadding = 20;
 
     if (!file_exists($fontPath)) {
         die("Errore: Font non trovato");
@@ -27,26 +27,67 @@ if (!empty($data)) {
     $textWidth = $bbox[2] - $bbox[0];
     $textHeight = $bbox[1] - $bbox[7];
 
-    // Altezza finale dell'immagine
-    $finalHeight = $qrHeight + $textHeight + $textPadding;
-    $finalImage = imagecreatetruecolor($qrWidth, $finalHeight);
+    // Altezza e larghezza finale
+    $finalWidth = max($qrWidth, $textWidth + 36);
+    $finalHeight = $qrHeight + $textHeight + $textPadding + 24;
+
+    $finalImage = imagecreatetruecolor($finalWidth, $finalHeight);
 
     // Sfondo bianco
     $white = imagecolorallocate($finalImage, 255, 255, 255);
     imagefill($finalImage, 0, 0, $white);
 
-    // Copia QR
-    imagecopy($finalImage, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
+    // Copia QR centrato in alto
+    $xQr = ($finalWidth - $qrWidth) / 2;
+    imagecopy($finalImage, $qrImage, $xQr, 0, 0, 0, $qrWidth, $qrHeight);
 
-    // Colore del testo
+    // Colore del testo e rettangolo
     $black = imagecolorallocate($finalImage, 0, 0, 0);
+    $rectBg = imagecolorallocate($finalImage, 255, 255, 255); // bianco
+    $rectBorder = imagecolorallocate($finalImage, 0, 0, 0); // nero pieno
 
     // Calcola posizione centrata del testo
-    $x = ($qrWidth - $textWidth) / 2;
+    $x = ($finalWidth - $textWidth) / 2;
     $y = $qrHeight + $textPadding + $textHeight;
 
-    // Scrivi il testo
-    imagettftext($finalImage, $fontSize, 0, $x, $y, $black, $fontPath, $data);
+    // Rettangolo arrotondato largo quanto il QR code e centrato
+    $rectWidth = $qrWidth;
+    $rectX1 = ($finalWidth - $rectWidth) / 2;
+    $rectX2 = $rectX1 + $rectWidth;
+    $rectPaddingY = 10; // padding verticale aumentato
+    $rectY1 = $y - $textHeight - $rectPaddingY;
+    $rectY2 = $y + $rectPaddingY;
+    $radius = 10;
+
+    // Funzione rettangolo arrotondato pieno
+    function imageRoundedRectangle($im, $x1, $y1, $x2, $y2, $radius, $color) {
+        imagefilledrectangle($im, $x1+$radius, $y1, $x2-$radius, $y2, $color);
+        imagefilledrectangle($im, $x1, $y1+$radius, $x2, $y2-$radius, $color);
+        imagefilledellipse($im, $x1+$radius, $y1+$radius, $radius*2, $radius*2, $color);
+        imagefilledellipse($im, $x2-$radius, $y1+$radius, $radius*2, $radius*2, $color);
+        imagefilledellipse($im, $x1+$radius, $y2-$radius, $radius*2, $radius*2, $color);
+        imagefilledellipse($im, $x2-$radius, $y2-$radius, $radius*2, $radius*2, $color);
+    }
+    // Funzione bordo rettangolo arrotondato spesso
+    function imageRoundedRectangleBorder($im, $x1, $y1, $x2, $y2, $radius, $color) {
+        imagesetthickness($im, 3); // bordo più spesso
+        imageline($im, $x1+$radius, $y1, $x2-$radius, $y1, $color);
+        imageline($im, $x1+$radius, $y2, $x2-$radius, $y2, $color);
+        imageline($im, $x1, $y1+$radius, $x1, $y2-$radius, $color);
+        imageline($im, $x2, $y1+$radius, $x2, $y2-$radius, $color);
+        imagearc($im, $x1+$radius, $y1+$radius, $radius*2, $radius*2, 180, 270, $color);
+        imagearc($im, $x2-$radius, $y1+$radius, $radius*2, $radius*2, 270, 360, $color);
+        imagearc($im, $x1+$radius, $y2-$radius, $radius*2, $radius*2, 90, 180, $color);
+        imagearc($im, $x2-$radius, $y2-$radius, $radius*2, $radius*2, 0, 90, $color);
+        imagesetthickness($im, 1); // ripristina spessore normale
+    }
+
+    imageRoundedRectangle($finalImage, $rectX1, $rectY1, $rectX2, $rectY2, $radius, $rectBg);
+    imageRoundedRectangleBorder($finalImage, $rectX1, $rectY1, $rectX2, $rectY2, $radius, $rectBorder);
+
+    // Scrivi il testo sopra il rettangolo, centrato
+    $textX = $rectX1 + ($rectWidth - $textWidth) / 2;
+    imagettftext($finalImage, $fontSize, 0, $textX, $y, $black, $fontPath, $data);
 
     // Output base64
     ob_start();
@@ -62,7 +103,7 @@ if (!empty($data)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,8 +117,6 @@ if (!empty($data)) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     </head>
     <body>
-        
-
         <div class="container">
             <!-- sidebar -->
             <div class="sidebar">
@@ -104,16 +143,30 @@ if (!empty($data)) {
                     </a>
                 </div>
 
-                <h1>QR Code: <?php echo $data?></h1>
+                <h1>QR Code: <?php echo htmlspecialchars($data) ?></h1>
 
-                <div class="show-qr">
-                    <?php
-                        // Mostra l'immagine
-                        echo "<img class='qr-code' src='data:image/png;base64,$Qr64'><br>";
-                    ?>
+                <div class="show-qr" id="qr-print-area">
+                    <div class="print-border">
+                        <?php
+                            // Mostra solo l'immagine (che ora contiene anche il numero nel quadratino)
+                            echo "<img class='qr-code' src='data:image/png;base64,$Qr64'><br>";
+                        ?>
+                    </div>
                     <div class="corner-bl"></div>
                     <div class="corner-br"></div>
                 </div>
+                <button class="print-btn" onclick="printQR()"><i class="fas fa-print"></i> Stampa QR</button>
+                <script>
+                    function printQR() {
+                        var printContents = document.getElementById('qr-print-area').innerHTML;
+                        var win = window.open('', '', 'width=600,height=800');
+                        win.document.write('<html><head><title>Stampa QR</title><link rel="stylesheet" href="generazione_QR.css"></head><body style="background:white;">' + printContents + '</body></html>');
+                        win.document.close();
+                        win.focus();
+                        win.print();
+                        win.close();
+                    }
+                </script>
         </div>
     </body>
 </html>
