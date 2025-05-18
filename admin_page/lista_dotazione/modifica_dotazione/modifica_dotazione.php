@@ -63,22 +63,28 @@ if (!is_null($username) && $role === "admin") {
             if (!in_array($categoria, $elencoCategorie)) {
                 $errors["categoria"] = "La categoria selezionata non è valida";
             }
-            if (!in_array($aula, $elencoAule)) {
+            if (!in_array($aula, $elencoAule) && !isset($aula)) {
                 $errors["aula"] = "L'aula selezionata non è valida";
             }
 
             // Aggiunamento dei parametri
             if (empty($errors)) {
-                $stmt = $conn->prepare("UPDATE dotazione SET nome = :nome, descrizione = :descrizione, prezzo_stimato = :prezzo_stimato, ID_aula = :aula, categoria = :categoria WHERE codice = :codice");
-                $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
-                $stmt->bindParam(':descrizione', $descrizione, PDO::PARAM_STR);
-                $stmt->bindParam(':prezzo_stimato', $prezzoPulito, PDO::PARAM_STR);
-                $stmt->bindParam(':aula', $aula, PDO::PARAM_STR);
-                $stmt->bindParam(':categoria', $categoria, PDO::PARAM_STR);
-                $stmt->bindParam(':codice', $codiceCorrente, PDO::PARAM_STR);
+                $aula = (($aula) === "") ? null : $aula;
+
+                $stmt = $conn->prepare("UPDATE dotazione SET nome = :nome, descrizione = :descrizione, prezzo_stimato = :prezzo_stimato, ID_aula = :aula, categoria = :categoria, stato = :stato WHERE codice = :codice");
+                $stmt->bindParam(':nome', $nome);
+                $stmt->bindParam(':descrizione', $descrizione);
+                $stmt->bindParam(':prezzo_stimato', $prezzoPulito);
+                $stmt->bindParam(':aula', $aula);
+                $stmt->bindParam(':categoria', $categoria);
+                $stmt->bindParam(':codice', $codiceCorrente);
+                if($aula) $stato = "presente";
+                else $stato = "archiviato";
+                $stmt->bindParam(':stato', $stato);
                 $stmt->execute();
 
-                header("Location: ../lista_dotazione.php");
+                if($_GET["start"] == 'attiva') header("Location: ../lista_dotazione.php");
+                if($_GET["start"] == 'archivio') header("Location: ../../dotazione_archiviata/dotazione_archiviata.php");
             }
         }else if (isset($_POST['reset'])) {
             header("Location: " . $_SERVER['REQUEST_URI']);
@@ -118,8 +124,9 @@ if (!is_null($username) && $role === "admin") {
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <a href="..\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="..\..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="..\lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="..\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
@@ -176,6 +183,7 @@ if (!is_null($username) && $role === "admin") {
                         <div class="form-group">
                             <label for="ID_aula">Aula</label>
                             <select name="aula">
+                                <option value="">-- Nessuna aula --</option>
                                 <?php foreach ($elencoAule as $aula): ?>
                                     <option value="<?php echo $aula ?>" <?php if ($dotazione['ID_aula'] == $aula) echo 'selected' ?>>
                                         <?php echo $aula ?>

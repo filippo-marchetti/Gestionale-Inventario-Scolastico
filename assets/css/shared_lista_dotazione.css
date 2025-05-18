@@ -44,6 +44,12 @@
 .btn-green:hover{
     background-color: rgb(84, 139, 84);
 }
+.btn-yellow{
+    background-color: rgb(196, 185, 41);
+}
+.btn-yellow:hover{
+    background-color: rgb(208, 217, 71);
+}
 .filter-input{
     padding: 8px;
     width: 30%;

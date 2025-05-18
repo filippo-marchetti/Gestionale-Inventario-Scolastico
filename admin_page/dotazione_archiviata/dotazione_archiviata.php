@@ -17,6 +17,12 @@
         } catch (PDOException $e) {
             die("Connessione fallita: " . $e->getMessage());
         }
+        // Dopo aver premuto il tasto di archiviazione alla dotazione viene tolta l'aula e lo stato diventa scartato
+        if(isset($_POST["scarta"])){
+            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'scartato' WHERE codice = :codice");
+            $stmt->bindParam(':codice', $_POST['scarta']);
+            $stmt->execute();
+        }
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -34,7 +40,7 @@
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <script src="lista_dotazione.js"></script>
+        <script src="..\lista_dotazione\lista_dotazione.js"></script>
     </head>
     <body>
         <div class="container">
@@ -48,8 +54,9 @@
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <a href="user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
                     <a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section selected"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
@@ -77,12 +84,13 @@
                             <td>Categoria</td>
                             <td>Descrizione</td>
                             <td>Prezzo Stimato</td>
-                            <td>Azioni</td>
+                            <td>Aula</td>
+                            <td style="text-align: center;">Azioni</td>
                         </thead>
                         <tbody>
                             <?php
                                 // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL");
+                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'archiviato'");
                                 $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 foreach ($dotazioni as $dotazione) {  
@@ -92,11 +100,12 @@
                                         echo "<td>".$dotazione['categoria']."</td>";
                                         echo "<td>".$dotazione['descrizione']."</td>";
                                         echo "<td>".$dotazione['prezzo_stimato']."€</td>";
+                                        echo "<td>".$dotazione['ID_aula']."</td>";
                                         ?>
                                             <td>
                                                 <div class="div-action-btn">
                                                     <!-- reindirizza alla pagina di modifica -->
-                                                    <a href="modifica_dotazione/modifica_dotazione.php?codice=<?php echo $dotazione['codice']?>">
+                                                    <a href="..\lista_dotazione\modifica_dotazione\modifica_dotazione.php?codice=<?php echo $dotazione['codice']?>&start=archivio">
                                                         <button name="modifica" class="btn-action btn-green" value="">
                                                             <i class="fas fa-pen"></i>
                                                         </button>
@@ -107,10 +116,9 @@
                                                             <i class="fas fa-qrcode"></i>
                                                         </button>
                                                     </a>
-                                                    <!-- reindirizza alla pagina di eliminazione -->
                                                     <form method="POST">
-                                                        <button name="elimina" class="btn-action btn-red">
-                                                            <i class="fas fa-warehouse"></i>
+                                                        <button name="scarta" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
                                                     </form>
                                                 </div>
