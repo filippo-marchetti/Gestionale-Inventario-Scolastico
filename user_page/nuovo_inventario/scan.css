@@ -1,35 +1,20 @@
-
-.container {
-    max-width: 600px;
-    margin: 40px auto;
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-    padding: 32px 20px;
-    text-align: center;
-}
-
-h1 {
-    color: #2a3b4c;
-    margin-bottom: 24px;
-    font-size: 2em;
-}
-
 .subtitle {
     color: #5b6b7a;
-    font-size: 1.1em;
+    font-size: 1.1rem;
 }
-
+.hint{
+    color:#c17213;
+}
 .scan-area {
+    width: 90%;
     background: #f5f8fa;
-    border: 1px dashed #1976d2;
+    border: 1px dashed #c17213;
     border-radius: 10px;
-    padding: 30px 0 20px 0;
+    padding: 30px 0 20px 30px;
     margin-bottom: 24px;
     font-size: 1.1em;
-    color: #1976d2;
+    color: #c17213;
 }
-
 input[type="text"] {
     width: 70%;
     padding: 10px 12px;
@@ -38,16 +23,13 @@ input[type="text"] {
     border-radius: 6px;
     font-size: 1em;
     background: #f9fbfc;
-    transition: border 0.2s;
 }
-
-input[type="text"]:focus {
-    border-color: #1976d2;
+input[type="text"]{
+    border-color: #c17213;
     outline: none;
 }
-
 button, .btn-back {
-    background: #1976d2;
+    background: #d2a119;
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -55,43 +37,30 @@ button, .btn-back {
     font-size: 1.08em;
     cursor: pointer;
     margin-top: 18px;
-    transition: background 0.2s;
     text-decoration: none;
     display: inline-block;
 }
-
 button:hover, .btn-back:hover {
-    background: #125ea7;
+    background: #eb8810;
 }
-
 .dotazioni-list {
     margin: 30px 0 10px 0;
     text-align: left;
 }
-
 .dotazioni-list ul {
     list-style: none;
     padding: 0;
 }
-
 .dotazioni-list li {
     margin-bottom: 8px;
     font-size: 1.08em;
 }
-
 .error {
     background: #fff3f3;
     border: 1px solid #ffd6d6;
-    color: #b23c3c;
+    color: #c17213;
     border-radius: 8px;
     padding: 10px 14px;
     margin-top: 10px;
     margin-bottom: 0;
-}
-
-@media (max-width: 600px) {
-    .container { padding: 10px 2vw; }
-    h1 { font-size: 1.2em; }
-    input[type="text"] { width: 100%; }
-    button, .btn-back { width: 100%; }
 }
