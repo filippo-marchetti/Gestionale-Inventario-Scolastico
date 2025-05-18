@@ -76,7 +76,9 @@ try {
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-        <h1>Inventari</h1>
+
+        <h1>Aule</h1>
+        
         <div class="actions">
             <input type="text" id="filterInput" placeholder="Cerca per codice o descrizione" class="filter-input">
             <form method="post" action="../nuovo_inventario/nuovo_inventario.php?id=<?php echo $idAula ?>">
