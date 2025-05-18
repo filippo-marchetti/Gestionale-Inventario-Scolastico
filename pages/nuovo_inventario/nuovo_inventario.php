@@ -1,62 +1,61 @@
-<<<<<<< HEAD
 <?php
-session_start();
+    session_start();
 
-$host = 'localhost';
-$db = 'inventariosdarzo';
-$user = 'root';
-$pass = '';
+    $host = 'localhost';
+    $db = 'inventariosdarzo';
+    $user = 'root';
+    $pass = '';
 
-// Recupero dati sessione
-$username = $_SESSION['username'] ?? null;
-$role = $_SESSION['role'] ?? null;
+    // Recupero dati sessione
+    $username = $_SESSION['username'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connessione fallita: " . $e->getMessage());
-}
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("Connessione fallita: " . $e->getMessage());
+    }
 
-$idAula = $_GET['id'] ?? null;
-$codiceInventario = $_GET['codice_inventario'] ?? null;
-$codiciDaSpuntareGET = $_GET['spuntato'] ?? [];
-if (!is_array($codiciDaSpuntareGET)) {
-    $codiciDaSpuntareGET = [$codiciDaSpuntareGET];
-}
+    $idAula = $_GET['id'] ?? null;
+    $codiceInventario = $_GET['codice_inventario'] ?? null;
+    $codiciDaSpuntareGET = $_GET['spuntato'] ?? [];
+    if (!is_array($codiciDaSpuntareGET)) {
+        $codiciDaSpuntareGET = [$codiciDaSpuntareGET];
+    }
 
-if (!$idAula) {
-    die("ID aula non specificato.");
-}
+    if (!$idAula) {
+        die("ID aula non specificato.");
+    }
 
-// Recupera ultimo inventario e scuola di appartenenza
-$stmt = $conn->prepare("
-    SELECT codice_inventario, descrizione, data_inventario, scuola_appartenenza
-    FROM inventario
-    WHERE ID_Aula = ?
-    ORDER BY data_inventario DESC
-    LIMIT 1
-");
-$stmt->execute([$idAula]);
-$lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$dotazioni = [];
-$scuolaAppartenenza = null;
-
-if ($lastInventario) {
+    // Recupera ultimo inventario e scuola di appartenenza
     $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato
-        FROM riga_inventario ri
-        JOIN dotazione d ON ri.codice_dotazione = d.codice
-        WHERE ri.codice_inventario = ?
+        SELECT codice_inventario, descrizione, data_inventario, scuola_appartenenza
+        FROM inventario
+        WHERE ID_Aula = ?
+        ORDER BY data_inventario DESC
+        LIMIT 1
     ");
-    $stmt->execute([$lastInventario['codice_inventario']]);
-    $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $scuolaAppartenenza = $lastInventario['scuola_appartenenza'];
-}
+    $stmt->execute([$idAula]);
+    $lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$errors = [];
-$dotazioniSpuntatePOST = $_POST['dotazione_presente'] ?? [];
+    $dotazioni = [];
+    $scuolaAppartenenza = null;
+
+    if ($lastInventario) {
+        $stmt = $conn->prepare("
+            SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato
+            FROM riga_inventario ri
+            JOIN dotazione d ON ri.codice_dotazione = d.codice
+            WHERE ri.codice_inventario = ?
+        ");
+        $stmt->execute([$lastInventario['codice_inventario']]);
+        $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $scuolaAppartenenza = $lastInventario['scuola_appartenenza'];
+    }
+
+    $errors = [];
+    $dotazioniSpuntatePOST = $_POST['dotazione_presente'] ?? [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
     $descrizione = trim($_POST['descrizione']);
@@ -78,81 +77,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
     // Pagina di conferma lato server senza JS
     if (empty($errors) && !$conferma) {
 ?>
-        <!DOCTYPE html>
-        <html lang="it">
+    <!DOCTYPE html>
+    <html lang="it">
 
-        <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Conferma Creazione Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
-            <link rel="stylesheet" href="../../assets/css/background.css" />
-            <link rel="stylesheet" href="../../assets/css/shared_style_user_admin.css" />
-            <link rel="stylesheet" href="../../assets/css/shared_admin_subpages.css" />
-            <link rel="stylesheet" href="inventari.css" />
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-        </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Conferma Creazione Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
+        <link rel="stylesheet" href="../../assets/css/background.css" />
+        <link rel="stylesheet" href="../../assets/css/shared_style_user_admin.css" />
+        <link rel="stylesheet" href="../../assets/css/shared_admin_subpages.css" />
+        <link rel="stylesheet" href="inventari.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    </head>
 
-        <body>
-            <div class="container">
-                <div class="sidebar">
-                    <div class="image"><img src="../../assets/images/logo_darzo.png" width="120px" alt="Logo Darzo"></div>
-                    <div class="section-container">
-                        <br />
-                        <?php if ($role === 'admin'): ?>
-                            <a href="../../admin_page/admin_page.php">
-                                <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
-                            </a>
-                        <?php else: ?>
-                            <a href="../user_page.php">
-                                <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
-                            </a>
-                        <?php endif; ?>
-                        <a href="../aule/aule.php">
-                            <div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div>
+    <body>
+        <div class="container">
+            <div class="sidebar">
+                <div class="image"><img src="../../assets/images/logo_darzo.png" width="120px" alt="Logo Darzo"></div>
+                <div class="section-container">
+                    <br />
+                    <?php if ($role === 'admin'): ?>
+                        <a href="../../admin_page/admin_page.php">
+                            <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
                         </a>
-                        <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($codiceInventarioPOST) ?>">
-                            <div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i> DOTAZIONE</span></div>
+                    <?php else: ?>
+                        <a href="../user_page.php">
+                            <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
                         </a>
-                        <a href="../dotazione_archiviata.php">
-                            <div class="section"><span class="section-text"><i class="fas fa-warehouse"></i> MAGAZZINO</span></div>
-                        </a>
-                        <a href="../dotazione_eliminata/dotazione_eliminata.php">
-                            <div class="section"><span class="section-text"><i class="fas fa-trash"></i> STORICO SCARTI</span></div>
-                        </a>
-                        <a href="#">
-                            <div class="section"><span class="section-text"><i class="fas fa-cogs"></i> IMPOSTAZIONI</span></div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="content">
-                    <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                        <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <a class="logout-btn" href="../../logout/logout.php">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </a>
-                    </div>
-
-                    <h1>Conferma creazione inventario</h1>
-                    <p>Sei sicuro di voler creare un nuovo inventario per l'aula <b><?= htmlspecialchars($idAula) ?></b>?</p>
-
-                    <form method="post" class="form-inventario">
-                        <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventarioPOST) ?>" />
-                        <input type="hidden" name="descrizione" value="<?= htmlspecialchars($descrizione) ?>" />
-                        <?php foreach ($dotazioniSelezionate as $codice): ?>
-                            <input type="hidden" name="dotazione_presente[]" value="<?= htmlspecialchars($codice) ?>" />
-                        <?php endforeach; ?>
-                        <input type="hidden" name="conferma" value="1" />
-                        <button type="submit" class="btn-save"><i class="fa fa-save"></i> Conferma</button>
-                        <a href="nuovo_inventario.php?id=<?= urlencode($idAula) ?>&codice_inventario=<?= urlencode($codiceInventarioPOST) ?>" class="btn-back">Annulla</a>
-                    </form>
+                    <?php endif; ?>
+                    <a href="../aule/aule.php">
+                        <div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div>
+                    </a>
+                    <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($codiceInventarioPOST) ?>">
+                        <div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i> DOTAZIONE</span></div>
+                    </a>
+                    <a href="../dotazione_archiviata.php">
+                        <div class="section"><span class="section-text"><i class="fas fa-warehouse"></i> MAGAZZINO</span></div>
+                    </a>
+                    <a href="../dotazione_eliminata/dotazione_eliminata.php">
+                        <div class="section"><span class="section-text"><i class="fas fa-trash"></i> STORICO SCARTI</span></div>
+                    </a>
+                    <a href="#">
+                        <div class="section"><span class="section-text"><i class="fas fa-cogs"></i> IMPOSTAZIONI</span></div>
+                    </a>
                 </div>
             </div>
-        </body>
 
-        </html>
+            <div class="content">
+                <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a class="logout-btn" href="../../logout/logout.php">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+
+                <h1>Conferma creazione inventario</h1>
+                <p>Sei sicuro di voler creare un nuovo inventario per l'aula <b><?= htmlspecialchars($idAula) ?></b>?</p>
+
+                <form method="post" class="form-inventario">
+                    <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventarioPOST) ?>" />
+                    <input type="hidden" name="descrizione" value="<?= htmlspecialchars($descrizione) ?>" />
+                    <?php foreach ($dotazioniSelezionate as $codice): ?>
+                        <input type="hidden" name="dotazione_presente[]" value="<?= htmlspecialchars($codice) ?>" />
+                    <?php endforeach; ?>
+                    <input type="hidden" name="conferma" value="1" />
+                    <button type="submit" class="btn-save"><i class="fa fa-save"></i> Conferma</button>
+                    <a href="nuovo_inventario.php?id=<?= urlencode($idAula) ?>&codice_inventario=<?= urlencode($codiceInventarioPOST) ?>" class="btn-back">Annulla</a>
+                </form>
+            </div>
+        </div>
+    </body>
+
+    </html>
 <?php
         exit;
     }
@@ -261,6 +260,7 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
                 <a href="../dotazione_eliminata/dotazione_eliminata.php">
                     <div class="section"><span class="section-text"><i class="fas fa-trash"></i> STORICO SCARTI</span></div>
                 </a>
+                <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
                 <a href="#">
                     <div class="section"><span class="section-text"><i class="fas fa-cogs"></i> IMPOSTAZIONI</span></div>
                 </a>

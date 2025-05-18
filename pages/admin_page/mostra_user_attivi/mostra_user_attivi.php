@@ -20,27 +20,6 @@
         } catch (PDOException $e) {
             die("Connessione fallita: " . $e->getMessage());
         }
-        /*if (isset($_POST['accetta'])) {
-            $pk_utente = $_POST['accetta'];
-            $scelta = "attivo";
-
-            //Richiesta accettata e cambio dello stato in attivo
-            $stmt = $conn->prepare("UPDATE utente SET stato = :stato WHERE username = :username");
-            $stmt->bindParam(':stato', $scelta);
-            $stmt->bindParam(':username', $pk_utente);
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        }else if (isset($_POST['rifiuta'])) {
-            $pk_utente = $_POST['rifiuta'];
-
-            //Richiesta negata e eliminazione dell'account
-            $stmt = $conn->prepare("DELETE FROM utente WHERE username = :username");
-            $stmt->bindParam(':username', $pk_utente);
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        }*/
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -84,6 +63,7 @@
                     <a href="../../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="../../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
                     <a href="../../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
                     <a href="../../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>  
                 </div>  
             </div>
