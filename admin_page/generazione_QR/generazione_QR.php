@@ -1,33 +1,66 @@
-<?php
-    session_start();
+<?php 
+include('phpqrcode/qrlib.php');
 
-    //info database
-    $host = 'localhost';
-    $db = 'inventariosdarzo';
-    $user = 'root';
-    $pass = '';
+$data = $_GET['id'] ?? '';
+$size = 10;
 
-    $username = $_SESSION['username'];
-    $role = $_SESSION['role'];
-    $id = $_GET['id'];
+if (!empty($data)) {
+    // Crea QR temporaneo
+    $tempQr = tempnam(sys_get_temp_dir(), 'qr_');
+    QRcode::png($data, $tempQr, QR_ECLEVEL_L, $size);
 
-    if(!is_null($username)){
-        try {
-        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Connessione fallita: " . $e->getMessage());
-        }
-    }else{
-        header("Location: ..\logout\logout.php");
+    $qrImage = imagecreatefrompng($tempQr);
+    $qrWidth = imagesx($qrImage);
+    $qrHeight = imagesy($qrImage);
+
+    // Imposta font
+    $fontSize = 30; // ATTENZIONE: usare valori realistici, tipo 14-30
+    $fontPath = __DIR__ . '/ARIAL.TTF'; // assicurati che esista
+    $textPadding = 20;
+
+    if (!file_exists($fontPath)) {
+        die("Errore: Font non trovato");
     }
 
-    require_once 'phpqrcode.php'; // metti il percorso giusto
+    // Calcola bounding box
+    $bbox = imagettfbbox($fontSize, 0, $fontPath, $data);
+    $textWidth = $bbox[2] - $bbox[0];
+    $textHeight = $bbox[1] - $bbox[7];
 
-    header('Content-Type: image/png');
-    QRcode::png($testo);
+    // Altezza finale dell'immagine
+    $finalHeight = $qrHeight + $textHeight + $textPadding;
+    $finalImage = imagecreatetruecolor($qrWidth, $finalHeight);
+
+    // Sfondo bianco
+    $white = imagecolorallocate($finalImage, 255, 255, 255);
+    imagefill($finalImage, 0, 0, $white);
+
+    // Copia QR
+    imagecopy($finalImage, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
+
+    // Colore del testo
+    $black = imagecolorallocate($finalImage, 0, 0, 0);
+
+    // Calcola posizione centrata del testo
+    $x = ($qrWidth - $textWidth) / 2;
+    $y = $qrHeight + $textPadding + $textHeight;
+
+    // Scrivi il testo
+    imagettftext($finalImage, $fontSize, 0, $x, $y, $black, $fontPath, $data);
+
+    // Output base64
+    ob_start();
+    imagepng($finalImage);
+    $Qr = ob_get_contents();
+    ob_end_clean();
+
+    imagedestroy($qrImage);
+    imagedestroy($finalImage);
+    unlink($tempQr);
+
+    $Qr64 = base64_encode($Qr);
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -37,13 +70,14 @@
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_lista_dotazione.css">
-        <link rel="stylesheet" href="lista_dotazione.css">
-        <title>Document</title>
+        <link rel="stylesheet" href="generazione_QR.css">
+        <title>QR - Page</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <script src="lista_dotazione.js"></script>
     </head>
     <body>
+        
+
         <div class="container">
             <!-- sidebar -->
             <div class="sidebar">
@@ -51,16 +85,13 @@
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
-                    <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
+                    <a href="admin_page.php"><div class="section selected"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <?php
-                        if($role == "admin"){
-                            echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                            echo '<a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
-                        };
-                    ?>
-                    <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="mostra_user_attivi/mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
+                    <a href="user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
+                    <a href="lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
@@ -68,14 +99,21 @@
             <div class="content">
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
                 <div class="logout">
-                    <a class="logout-btn" href="..\..\logout\logout.php">
+                    <a class="logout-btn" href="..\logout\logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
-                <h1>Generazione QR</h1>
-                <div>
+
+                <h1>QR Code: <?php echo $data?></h1>
+
+                <div class="show-qr">
+                    <?php
+                        // Mostra l'immagine
+                        echo "<img class='qr-code' src='data:image/png;base64,$Qr64'><br>";
+                    ?>
+                    <div class="corner-bl"></div>
+                    <div class="corner-br"></div>
                 </div>
-            </div>
         </div>
     </body>
 </html>
