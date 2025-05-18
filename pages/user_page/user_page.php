@@ -51,8 +51,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\assets\css\background.css">
-        <link rel="stylesheet" href="..\assets\css\shared_style_user_admin.css">
+        <link rel="stylesheet" href="..\..\assets\css\background.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="user_page.css">
         <title>Admin - Page</title>
         <!-- Font Awesome per icone-->
