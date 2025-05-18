@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
                         <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
                             <i class="fas fa-chevron-left"></i>
                         </a>
-                        <a class="logout-btn" href="../logout/logout.php">
+                        <a class="logout-btn" href="../../logout/logout.php">
                             <i class="fas fa-sign-out-alt"></i>
                         </a>
                     </div>

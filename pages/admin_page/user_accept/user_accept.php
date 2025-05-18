@@ -110,7 +110,7 @@
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <!-- Bottone logout -->
-                    <a class="logout-btn" href="../../logout/logout.php">
+                    <a class="logout-btn" href="../../../logout/logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
