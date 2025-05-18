@@ -95,6 +95,11 @@ if (!is_null($username)) {
                                 <a href="../inventari/inventari.php?id=<?php echo $aula['ID_aula'] ?>" >
                                     <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
                                 </a>
+                                <a href="generazione_QR_aula/generazione_QR_aula.php?id=<?php echo $aula['ID_aula']; ?>">
+                                    <button name="qrcode" class="btn-action btn-blu">
+                                        <i class="fas fa-qrcode"></i>
+                                    </button>
+                                </a>
                             </div>
                         </td>
                     </tr>
