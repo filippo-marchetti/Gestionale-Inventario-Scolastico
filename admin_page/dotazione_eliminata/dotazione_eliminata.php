@@ -114,7 +114,6 @@
                                                             <i class="fas fa-pen"></i>
                                                         </button>
                                                     </a>
-    
                                                     <form method="POST">
                                                         <button name="abilita" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
                                                             <i class="fas fa-undo"></i>

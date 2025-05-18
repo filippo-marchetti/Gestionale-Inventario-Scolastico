@@ -124,8 +124,8 @@
                                                             <i class="fas fa-pen"></i>
                                                         </button>
                                                     </a>
-                                                    <!-- reindirizza alla pagina del qrcode -->
-                                                    <a href="..\generazione_QR\generazione_QR.php?id=<?php echo $dotazione['codice']; ?>">
+                                                    <!-- apre il pdf con il qr code -->
+                                                    <a href="..\generazione_QR\genera_pdf.php?id=<?php echo $dotazione['codice']; ?>" target="_blank">
                                                         <button name="qrcode" class="btn-action btn-blu">
                                                             <i class="fas fa-qrcode"></i>
                                                         </button>
