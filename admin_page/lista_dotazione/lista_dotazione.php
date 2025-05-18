@@ -119,7 +119,7 @@
                                                         </button>
                                                     </a>
                                                     <!-- reindirizza alla pagina del qrcode -->
-                                                    <a href="..\generazione_QR\generazione_QR.php?id=<?php echo urlencode($dotazione['codice']); ?>">
+                                                    <a href="..\generazione_QR\generazione_QR.php?id=<?php echo $dotazione['codice']; ?>">
                                                         <button name="qrcode" class="btn-action btn-blu">
                                                             <i class="fas fa-qrcode"></i>
                                                         </button>
