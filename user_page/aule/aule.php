@@ -67,7 +67,7 @@ if (!is_null($username) && $role == "user") {
                     <?php foreach ($aule as $aula): ?>
                         <a class="aula-card" href="../inventari/inventari.php?id=<?= urlencode($aula['ID_aula']) ?>">
                              <div class="aula-info">
-                            <span class="label">ID Aula:</span> <?= htmlspecialchars($aula['ID_aula']) ?>
+                            <span class="label">Aula:</span> <?= htmlspecialchars($aula['ID_aula']) ?>
                             </div>
                             <div class="aula-info">
                                 <span class="label">Tipologia:</span> <?= htmlspecialchars($aula['tipologia']) ?>

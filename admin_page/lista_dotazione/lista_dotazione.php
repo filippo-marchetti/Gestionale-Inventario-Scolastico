@@ -10,7 +10,7 @@
     $username = $_SESSION['username'];
     $role = $_SESSION['role'];
 
-    if(!is_null($username) && $role == "admin"){
+    if(!is_null($username)){
         try {
         $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -59,8 +59,12 @@
                     <br>
                     <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
-                    <a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
+                    <?php
+                        if($role == "admin"){
+                            echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                        };
+                    ?>
                     <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
@@ -115,7 +119,7 @@
                                                         </button>
                                                     </a>
                                                     <!-- reindirizza alla pagina del qrcode -->
-                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
+                                                    <a href="..\generazione_QR\generazione_QR.php?id=<?php echo urlencode($dotazione['codice']); ?>">
                                                         <button name="qrcode" class="btn-action btn-blu">
                                                             <i class="fas fa-qrcode"></i>
                                                         </button>
