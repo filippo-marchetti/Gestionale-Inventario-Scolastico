@@ -18,8 +18,8 @@
             die("Connessione fallita: " . $e->getMessage());
         }
         // Query per recuperare il numero degli inventari
-        $stmt = $conn->query("SELECT count(*) FROM inventario");
-        $num_inventari = $stmt->fetchColumn(); 
+        $stmt = $conn->query("SELECT count(*) FROM aula");
+        $num_aule = $stmt->fetchColumn(); 
 
         // Query per recuperare il numero dei tecnici
         $stmt = $conn->query("SELECT count(*) FROM utente WHERE stato LIKE 'attivo'");
@@ -30,8 +30,8 @@
         $num_account_da_verificare = $stmt->fetchColumn();
 
         // Query per recuperare il materiale non assegnato ad alcuna classe
-        $stmt = $conn->query("SELECT count(*) FROM dotazione WHERE ID_aula IS NULL");
-        $num_dotazioni_non_assegnate = $stmt->fetchColumn();
+        $stmt = $conn->query("SELECT count(*) FROM dotazione WHERE stato = 'mancante'");
+        $num_dotazioni_mancanti = $stmt->fetchColumn();
 
         //Query per recuperare i dati degli ultimi inventari e i relativi tecnici
         $stmt = $conn->prepare("
@@ -102,10 +102,10 @@
                     <a href="bop.php">
                         <div class="card card-blue">
                             <div class="card-content">
-                                <i class="fas fa-clipboard-list"></i>
-                                <h3>Totale<br>Inventari</h3>
+                                <i class="fas fa-home"></i>
+                                <h3>Totale<br>Aule</h3>
                             </div>
-                            <span class="card-number"><?php echo $num_inventari?> inventari</span>
+                            <span class="card-number"><?php echo $num_aule?> aule</span>
                         </div>
                     </a>
                     <a href="bop.php">
@@ -129,10 +129,10 @@
                     <a href="bop.php">
                         <div class="card card-red">
                         <div class="card-content">
-                            <i class="fas fa-boxes"></i>
-                            <h3>Dotazioni<br>Assegnabili</h3>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Dotazioni<br>Mancanti</h3>
                         </div>
-                        <span class="card-number"><?php echo $num_dotazioni_non_assegnate?> dotazioni</span>
+                        <span class="card-number"><?php echo $num_dotazioni_mancanti?> dotazioni</span>
                         </div>
                     </a>
                 </div>
