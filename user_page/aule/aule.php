@@ -4,7 +4,7 @@ session_start();
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
-if (!is_null($username) && $role == "user") {
+if (!is_null($username)) {
     // Connessione al database
     $host = 'localhost';
     $db = 'inventariosdarzo';
@@ -47,10 +47,17 @@ if (!is_null($username) && $role == "user") {
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
-                    <a href="../admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
-                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <?php
+                        if($role == 'admin') {
+                            echo '<a href="../../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        } else {
+                            echo '<a href="../user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        }
+                    ?>
+                    <a href="aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <a href="../../admin_page/lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../../admin_page/dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../../admin_page/dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>

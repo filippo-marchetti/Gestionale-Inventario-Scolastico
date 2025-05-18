@@ -84,10 +84,10 @@ try {
         <div class="lista-dotazioni">
             <table>
                     <thead>
-                        <td onclick="sortTable(0)">Codice Inventario</td>
-                        <td onclick="sortTable(1)">Data Inventario</td>
-                        <td onclick="sortTable(2)">Descrizione</td>
-                        <td onclick="sortTable(3)">Scuola di appartenenza</td>
+                        <td>Codice Inventario</td>
+                        <td>Data Inventario</td>
+                        <td>Descrizione</td>
+                        <td>Scuola di appartenenza</td>
                         <td style="text-align: center;">Azioni</td>
                     </thead>
                 <tbody>
@@ -97,25 +97,26 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($inventari as $inv): 
-                                        echo "<tr>";
+                                    echo "<tr>";
                                         echo "<td>".$inv['codice_inventario']."</td>";
                                         echo "<td>".$inv['data_inventario']."</td>";
                                         echo "<td>".$inv['descrizione']."</td>";
                                         echo "<td>".$inv['nome_scuola']."</td>";
                                         ?>
-                                    <div class="div-action-btn">
-                                        <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>" title="Visualizza dotazioni">
-                                            <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
-                                        </a>
-                                        <a href="modifica_inventario.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
-                                            <button class="btn-action btn-blu"><i class="fas fa-pen"></i></button>
-                                        </a>
-                                        <form method="POST" style="display:inline;">
-                                            <button name="elimina" class="btn-action btn-red">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <td>
+                                        <div class="div-action-btn">
+                                            <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>" title="Visualizza dotazioni">
+                                                <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
+                                            </a>
+                                            <a href="modifica_inventario.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
+                                                <button class="btn-action btn-blu"><i class="fas fa-pen"></i></button>
+                                            </a>
+                                            <form method="POST" style="display:inline;">
+                                                <button name="elimina" class="btn-action btn-red">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

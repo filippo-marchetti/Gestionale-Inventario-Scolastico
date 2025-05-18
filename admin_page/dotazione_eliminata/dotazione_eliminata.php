@@ -18,9 +18,9 @@
             die("Connessione fallita: " . $e->getMessage());
         }
         // Dopo aver premuto il tasto di archiviazione alla dotazione viene tolta l'aula e lo stato diventa scartato
-        if(isset($_POST["scarta"])){
-            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'scartato' WHERE codice = :codice");
-            $stmt->bindParam(':codice', $_POST['scarta']);
+        if(isset($_POST["abilita"])){
+            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'archiviato', prezzo_stimato = 0 WHERE codice = :codice");
+            $stmt->bindParam(':codice', $_POST['abilita']);
             $stmt->execute();
         }
     }else{
@@ -66,7 +66,7 @@
                     ?>
                     <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section selected"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                    <a href="..\dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
@@ -78,13 +78,7 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
-                <h1>Dotazioni</h1>
-                <div class="actions">
-                    <input type="text" id="filterInput" placeholder="Cerca per nome o codice" class="filter-input">
-                    <form method="post" action="aggiungi_dotazione_archiviata\aggiungi_dotazione_archiviata.php">
-                        <button class="btn-add"><i class="fas fa-plus"></i>Aggiungi</button>
-                    </form>
-                </div>
+                <h1>Dotazioni eliminate</h1>
 
                 <div class="lista-dotazioni">
                     <table>
@@ -100,7 +94,7 @@
                         <tbody>
                             <?php
                                 // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'archiviato'");
+                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'scartato'");
                                 $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 foreach ($dotazioni as $dotazione) {  
@@ -120,15 +114,10 @@
                                                             <i class="fas fa-pen"></i>
                                                         </button>
                                                     </a>
-                                                    <!-- reindirizza alla pagina del qrcode -->
-                                                    <a href="modifica_dotazione/modifica_dotazione.php?id=123">
-                                                        <button name="qrcode" class="btn-action btn-blu">
-                                                            <i class="fas fa-qrcode"></i>
-                                                        </button>
-                                                    </a>
+    
                                                     <form method="POST">
-                                                        <button name="scarta" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
-                                                            <i class="fas fa-trash"></i>
+                                                        <button name="abilita" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
+                                                            <i class="fas fa-undo"></i>
                                                         </button>
                                                     </form>
                                                 </div>
