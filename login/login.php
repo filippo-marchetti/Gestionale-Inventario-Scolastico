@@ -43,7 +43,7 @@
                     $_SESSION['username'] = $_POST['username'];
                     $_SESSION['role'] = "user";
                     //accesso alla pagina user
-                    header('Location: ..\user_page\user_page.php');
+                    header('Location: ..\pages\user_page\user_page.php');
                 } else{
                     $errors['username'] = "Password o nome utente errati";
                 }
@@ -59,7 +59,7 @@
                     $_SESSION['username'] = $_POST['username'];
                     $_SESSION['role'] = "admin";
                     //accesso alla pagina admin
-                    header('Location: ..\admin_page\admin_page.php');
+                    header('Location: ..\pages\admin_page\admin_page\admin_page.php');
                 }else{
                     $errors['username'] = "Password o nome utente errati";
                 }
