@@ -48,12 +48,25 @@ if (!is_null($username)) {
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
-                    <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
-                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
-                    <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                    <?php
+                        if($role == 'admin') {
+                            echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        } else {
+                            echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        }
+                    ?>
+                    <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <?php
+                        if($role == "admin"){
+                            echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                        };
+                    ?>
+                    <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>      
                 </div>  
             </div>
         <!-- content -->
@@ -68,7 +81,7 @@ if (!is_null($username)) {
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-        <h1>Inventari</h1>
+        <h1>Aule</h1>
         <div class="actions">
             <input type="text" id="filterInput" placeholder="Cerca per codice o descrizione" class="filter-input">
             <form method="post" action="aggiungi_aula/aggiungi_aula.php">
@@ -107,7 +120,7 @@ if (!is_null($username)) {
                                 <a href="../inventari/inventari.php?id=<?php echo $aula['ID_aula'] ?>" >
                                     <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
                                 </a>
-                                <a href="..\..\admin_page\generazione_QR\genera_pdf_aule.php?ID_aula=<?php echo $aula['ID_aula']; ?>" target="_BLANK" <?php if($numDot == 0) echo "onclick='return false;'"?>>
+                                <a href="..\generazione_QR\genera_pdf_aule.php?ID_aula=<?php echo $aula['ID_aula']; ?>" target="_BLANK" <?php if($numDot == 0) echo "onclick='return false;'"?>>
                                     <button name="qrcode" class="btn-action btn-blu">
                                         <i class="fas fa-qrcode"></i>
                                     </button>

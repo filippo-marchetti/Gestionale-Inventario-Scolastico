@@ -20,7 +20,7 @@
         } catch (PDOException $e) {
             die("Connessione fallita: " . $e->getMessage());
         }
-        if (isset($_POST['accetta'])) {
+        /*if (isset($_POST['accetta'])) {
             $pk_utente = $_POST['accetta'];
             $scelta = "attivo";
 
@@ -40,21 +40,7 @@
             $stmt->execute();
 
             header("Location: " . $_SERVER['PHP_SELF']);
-        }
-        if (isset($_POST['accept-all'])) {
-            $scelta = "attivo";
-            $stmt = $conn->prepare("UPDATE utente SET stato = :stato WHERE stato = 'attesa'");
-            $stmt->bindParam(':stato', $scelta);
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        } else if (isset($_POST['reject-all'])) {
-            $stmt = $conn->prepare("DELETE FROM utente WHERE stato = 'attesa'");
-            $stmt->execute();
-
-            header("Location: " . $_SERVER['PHP_SELF']);
-        }
-
+        }*/
     }else{
         header("Location: ..\logout\logout.php");
     }
@@ -64,10 +50,10 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\..\assets\css\background.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
-        <link rel="stylesheet" href="user_accept.css">
+        <link rel="stylesheet" href="..\..\..\assets\css\background.css">
+        <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
+        <link rel="stylesheet" href="..\..\..\assets\css\shared_admin_subpages.css">
+        <link rel="stylesheet" href="mostra_user_attivi.css">
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -76,18 +62,29 @@
         <div class="container">
             <!-- sidebar -->
             <div class="sidebar">
-                <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
+                <div class="image"><img src="..\..\..\assets\images\logo_darzo.png" width="120px"></div>
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
-                    <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
-                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
-                    <a href="..\user_accept\user_accept.php"><div class="section selected"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                    <?php
+                        if($role == 'admin') {
+                            echo '<a href="../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        } else {
+                            echo '<a href="../../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        }
+                    ?>
+                    <a href="../../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <?php
+                        if($role == "admin"){
+                            echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                        };
+                    ?>
+                    <a href="../../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>  
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
@@ -99,16 +96,11 @@
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <!-- Bottone logout -->
-                    <a class="logout-btn" href="../../logout/logout.php">
+                    <a class="logout-btn" href="../logout/logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
-                <h1>Richieste Account</h1>
-
-                <form class="btn-container" method="post">
-                    <button class="btn btn-blu" name="accept-all"><i class="fas fa-check"></i>ACCETTA TUTTI</button>
-                    <button class="btn btn-red" name="reject-all"><i class="fas fa-times"></i>RIFIUTA TUTTI</button>
-                </form>
+                <h1>Utenti attivi</h1>
 
                 <div class="user-request">
                     <table>
@@ -123,7 +115,7 @@
                         <tbody>
                             <?php
                                 // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM utente WHERE stato = 'attesa'");
+                                $stmt = $conn->query("SELECT * FROM utente WHERE stato = 'attivo'");
                                 $utenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 foreach ($utenti as $utente) {  

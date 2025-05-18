@@ -51,8 +51,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\assets\css\background.css">
-        <link rel="stylesheet" href="..\assets\css\shared_style_user_admin.css">
+        <link rel="stylesheet" href="..\..\..\assets\css\background.css">
+        <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="admin_page.css">
         <title>Admin - Page</title>
         <!-- Font Awesome per icone-->
@@ -65,19 +65,19 @@
             
             <!-- sidebar -->
             <div class="sidebar">
-                <div class="image"><img src="..\assets\images\logo_darzo.png" width="120px"></div>
+                <div class="image"><img src="..\..\..\assets\images\logo_darzo.png" width="120px"></div>
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
                     <a href="admin_page.php"><div class="section selected"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
-                    <a href="../user_page/aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <a href="mostra_user_attivi/mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
-                    <a href="user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
-                    <a href="nuovo_admin/nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>
-                    <a href="lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                    <a href="dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                    <a href="impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                    <a href="../../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <a href="../mostra_user_attivi/mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
+                    <a href="../user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>
+                    <a href="../nuovo_admin/nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>
+                    <a href="../../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
@@ -99,7 +99,7 @@
 
                 <!-- cards colorate con dati aggiuntivi -->
                 <div class="dashboard-cards">
-                    <a href="bop.php">
+                    <a href="../../aule/aule.php">
                         <div class="card card-blue">
                             <div class="card-content">
                                 <i class="fas fa-home"></i>
@@ -108,7 +108,7 @@
                             <span class="card-number"><?php echo $num_aule?> aule</span>
                         </div>
                     </a>
-                    <a href="bop.php">
+                    <a href="../mostra_user_attivi/mostra_user_attivi.php">
                         <div class="card card-green">
                             <div class="card-content">
                                 <i class="fas fa-user-check"></i>
@@ -117,7 +117,7 @@
                             <span class="card-number"><?php echo $num_tecnici?> tecnici</span>
                         </div>
                     </a>
-                    <a href="user_accept/user_accept.php">
+                    <a href="../user_accept/user_accept.php">
                         <div class="card card-orange">
                         <div class="card-content">
                             <i class="fas fa-user-clock"></i>
@@ -126,7 +126,7 @@
                         <span class="card-number"><?php echo $num_account_da_verificare?> account</span>
                         </div>
                     </a>
-                    <a href="bop.php">
+                    <a href="../../lista_dotazione/lista_dotazione.php">
                         <div class="card card-red">
                         <div class="card-content">
                             <i class="fas fa-exclamation-triangle"></i>
