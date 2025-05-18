@@ -51,7 +51,7 @@ try {
         <title>Document</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <script src="lista_dotazione.js"></script>
+        <script src="inventari.js"></script>
 </head>
 <body>
     <div class="container">
@@ -79,7 +79,9 @@ try {
         <h1>Inventari</h1>
         <div class="actions">
             <input type="text" id="filterInput" placeholder="Cerca per codice o descrizione" class="filter-input">
-            <a href="../nuovo_inventario/nuovo_inventario.php?id=<?= urlencode($idAula) ?>" class="btn-add"><i class="fas fa-plus"></i> Nuovo Inventario</a>
+            <form method="post" action="../nuovo_inventario/nuovo_inventario.php?id=<?php echo $idAula ?>">
+                <button class="btn-add"><i class="fas fa-plus"></i>Nuovo Inventario</button>
+            </form>
         </div>
         <div class="lista-dotazioni">
             <table>
@@ -88,6 +90,7 @@ try {
                         <td>Data Inventario</td>
                         <td>Descrizione</td>
                         <td>Scuola di appartenenza</td>
+                        <td>Numero Dotazione</td>
                         <td style="text-align: center;">Azioni</td>
                     </thead>
                 <tbody>
@@ -97,25 +100,21 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($inventari as $inv): 
+                                    $stmt = $conn->prepare("SELECT COUNT(*) FROM riga_inventario WHERE codice_inventario = ?");
+                                    $stmt->execute([$inv['codice_inventario']]);
+                                    $numDot = $stmt->fetchColumn();
                                     echo "<tr>";
                                         echo "<td>".$inv['codice_inventario']."</td>";
                                         echo "<td>".$inv['data_inventario']."</td>";
                                         echo "<td>".$inv['descrizione']."</td>";
                                         echo "<td>".$inv['nome_scuola']."</td>";
+                                        echo "<td>".$numDot."</td>";
                                         ?>
                                     <td>
                                         <div class="div-action-btn">
-                                            <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>" title="Visualizza dotazioni">
+                                            <a href="../dotazioni/dotazioni.php?codice=<?php echo $inv['codice_inventario'] ?>" title="Visualizza dotazioni">
                                                 <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
                                             </a>
-                                            <a href="modifica_inventario.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
-                                                <button class="btn-action btn-blu"><i class="fas fa-pen"></i></button>
-                                            </a>
-                                            <form method="POST" style="display:inline;">
-                                                <button name="elimina" class="btn-action btn-red">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
                                         </div>
                                 </td>
                             </tr>
