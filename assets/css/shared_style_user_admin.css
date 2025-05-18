@@ -85,19 +85,25 @@ a{
     font-size: 1.2rem;
     margin-right: 10px; /* Spazio tra icona e testo (facoltativo se usi space-between) */
 }
-/* parte alta del content contenente il pulsante del logout */
-.logout {
-    display: flex;
-    align-items: center;
-    height: 60px;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0 30px;
+.logout{
+    width: 100%;
+    margin-top: 10px;
 }
+/* parte alta del content contenente il pulsante del logout */
 .logout-btn {
     margin-top: 2%;
     color: #d9534f;
     font-size: 2rem;
+    margin-right: 20px;
+}
+.back-btn i{
+    font-size: 2rem;
+}
+.back-btn {
+    margin-top: 2%;
+    color: #d9534f;
+    font-size: 90rem;
+    padding: 0px;
 }
 .logout-btn:hover {
     color: #c9302c;
@@ -162,16 +168,14 @@ h1{
 }
 .back-btn {
     color: #222;
-    background: #fff;
-    border-radius: 50%;
-    padding: 8px 11px 8px 10px;
-    font-size: 1.2em;
-    border: 1px solid #ddd;
-    transition: background 0.2s, color 0.2s;
-    margin-right: 0;
-    text-align: center;
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s;
 }
+
 .back-btn:hover {
-    background: #e6e6e6;
     color: #007bff;
 }

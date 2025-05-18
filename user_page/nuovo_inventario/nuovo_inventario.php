@@ -1,80 +1,80 @@
 <?php
-session_start();
+    session_start();
 
-$host = 'localhost';
-$db = 'inventariosdarzo';
-$user = 'root';
-$pass = '';
+    $host = 'localhost';
+    $db = 'inventariosdarzo';
+    $user = 'root';
+    $pass = '';
 
-$username = $_SESSION['username'] ?? null;
-$role = $_SESSION['role'] ?? null;
+    $username = $_SESSION['username'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connessione fallita: " . $e->getMessage());
-}
-
-$idAula = $_GET['id'] ?? null;
-$codiceInventario = $_GET['codice_inventario'] ?? null;
-$codiciDaSpuntareGET = $_GET['spuntato'] ?? [];
-if (!is_array($codiciDaSpuntareGET)) {
-    $codiciDaSpuntareGET = [$codiciDaSpuntareGET];
-}
-
-if (!$idAula) {
-    die("ID aula non specificato.");
-}
-
-// Recupera ultimo inventario e scuola appartenenza
-$stmt = $conn->prepare("
-    SELECT codice_inventario, descrizione, data_inventario, scuola_appartenenza
-    FROM inventario
-    WHERE ID_Aula = ?
-    ORDER BY data_inventario DESC
-    LIMIT 1
-");
-$stmt->execute([$idAula]);
-$lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$dotazioni = [];
-if ($lastInventario) {
-    $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato
-        FROM riga_inventario ri
-        JOIN dotazione d ON ri.codice_dotazione = d.codice
-        WHERE ri.codice_inventario = ?
-    ");
-    $stmt->execute([$lastInventario['codice_inventario']]);
-    $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $scuolaAppartenenza = $lastInventario['scuola_appartenenza'];
-} else {
-    $scuolaAppartenenza = null;
-}
-
-$errors = [];
-$dotazioniSpuntatePOST = $_POST['dotazione_presente'] ?? [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
-    $descrizione = trim($_POST['descrizione']);
-    $codiceInventarioPOST = $_POST['codice_inventario'];
-    $dotazioniSelezionate = $_POST['dotazione_presente'] ?? [];
-    $conferma = $_POST['conferma'] ?? null;
-
-    if (!$descrizione) {
-        $errors[] = "La descrizione è obbligatoria.";
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("Connessione fallita: " . $e->getMessage());
     }
+
+    $idAula = $_GET['id'] ?? null;
+    $codiceInventario = $_GET['codice_inventario'] ?? null;
+    $codiciDaSpuntareGET = $_GET['spuntato'] ?? [];
+    if (!is_array($codiciDaSpuntareGET)) {
+        $codiciDaSpuntareGET = [$codiciDaSpuntareGET];
+    }
+
     if (!$idAula) {
-        $errors[] = "ID aula mancante.";
-    }
-    if (!$codiceInventarioPOST) {
-        $errors[] = "Codice inventario mancante.";
+        die("ID aula non specificato.");
     }
 
-    // Pagina di conferma lato server (senza JS)
-    if (empty($errors) && !$conferma) {
-        ?>
+    // Recupera ultimo inventario e scuola appartenenza
+    $stmt = $conn->prepare("
+        SELECT codice_inventario, descrizione, data_inventario, scuola_appartenenza
+        FROM inventario
+        WHERE ID_Aula = ?
+        ORDER BY data_inventario DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$idAula]);
+    $lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $dotazioni = [];
+    if ($lastInventario) {
+        $stmt = $conn->prepare("
+            SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato
+            FROM riga_inventario ri
+            JOIN dotazione d ON ri.codice_dotazione = d.codice
+            WHERE ri.codice_inventario = ?
+        ");
+        $stmt->execute([$lastInventario['codice_inventario']]);
+        $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $scuolaAppartenenza = $lastInventario['scuola_appartenenza'];
+    } else {
+        $scuolaAppartenenza = null;
+    }
+
+    $errors = [];
+    $dotazioniSpuntatePOST = $_POST['dotazione_presente'] ?? [];
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descrizione'])) {
+        $descrizione = trim($_POST['descrizione']);
+        $codiceInventarioPOST = $_POST['codice_inventario'];
+        $dotazioniSelezionate = $_POST['dotazione_presente'] ?? [];
+        $conferma = $_POST['conferma'] ?? null;
+
+        if (!$descrizione) {
+            $errors[] = "La descrizione è obbligatoria.";
+        }
+        if (!$idAula) {
+            $errors[] = "ID aula mancante.";
+        }
+        if (!$codiceInventarioPOST) {
+            $errors[] = "Codice inventario mancante.";
+        }
+
+        // Pagina di conferma lato server (senza JS)
+        if (empty($errors) && !$conferma) {
+?>
         <!DOCTYPE html>
         <html lang="it">
         <head>
@@ -207,12 +207,17 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
     </div>
     <!-- content -->
     <div class="content">
-        <div class="logout">
-            <a class="logout-btn" href="../../logout/logout.php">
+        <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <!-- Bottone "indietro" -->
+            <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <!-- Bottone logout -->
+            <a class="logout-btn" href="../logout/logout.php">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-        <h1>Nuovo Inventario<br><span class="subtitle">Aula <?= htmlspecialchars($idAula) ?></span></h1>
+        <h1>Nuovo Inventario<br><span class="subtitle">Aula <?php echo $idAula ?></span></h1>
 
         <div class="actions-bar">
             <a href="scan.php?<?= http_build_query([
@@ -226,23 +231,23 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
             <div class="error">
                 <ul>
                     <?php foreach ($errors as $err): ?>
-                        <li><?= htmlspecialchars($err) ?></li>
+                        <li><?php echo $err?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         <?php endif; ?>
 
         <form method="post" class="form-inventario">
-            <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>">
+            <input type="hidden" name="codice_inventario" value="<?php echo $codiceInventario ?>">
 
             <div class="form-group">
                 <label for="codice_inventario">Codice Inventario:</label>
-                <input type="text" id="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>" readonly>
+                <input type="text" id="codice_inventario" value="<?php echo $codiceInventario ?>" readonly>
             </div>
 
             <div class="form-group">
                 <label for="descrizione">Descrizione:</label>
-                <input type="text" id="descrizione" name="descrizione" required value="<?= isset($_POST['descrizione']) ? htmlspecialchars($_POST['descrizione']) : '' ?>">
+                <input type="text" id="descrizione" name="descrizione" required value="<?php isset($_POST['descrizione']) ? $_POST['descrizione'] : '' ?>">
             </div>
 
             <?php if ($dotazioni): ?>
@@ -265,17 +270,17 @@ $codiciDaSpuntare = array_unique(array_merge($codiciDaSpuntareGET, $dotazioniSpu
                         ?>
                         <div class="dotazione <?= $spuntata ? 'spuntata' : '' ?>">
                             <label>
-                                <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>" <?= $spuntata ? 'checked' : '' ?>>
-                                <span class="dotazione-nome"><?= htmlspecialchars($d['nome']) ?></span>
-                                <span class="dotazione-cat">(<?= htmlspecialchars($d['categoria']) ?>)</span>
+                                <input type="checkbox" name="dotazione_presente[]" value="<?php echo$d['codice'] ?>" <?= $spuntata ? 'checked' : '' ?>>
+                                <span class="dotazione-nome"><?php echo $d['nome'] ?></span>
+                                <span class="dotazione-cat">(<?php echo$d['categoria'] ?>)</span>
                             </label>
                             <div class="dotazione-info">
-                                <span><b>Codice:</b> <?= htmlspecialchars($d['codice']) ?></span>
-                                <span><b>Stato:</b> <?= htmlspecialchars($d['stato']) ?></span>
+                                <span><b>Codice:</b> <?php echo$d['codice'] ?></span>
+                                <span><b>Stato:</b> <?php echo$d['stato'] ?></span>
                             </div>
                             <?php if ($idAulaDotazione && $idAulaDotazione != $idAula): ?>
                                 <div class="alert" style="color:#b23c3c; margin-top:6px;">
-                                    ⚠️ Questa dotazione ora si trova nell'aula: <b><?= htmlspecialchars($nomeAulaDestinazione ?: $idAulaDotazione) ?></b>
+                                    ⚠️ Questa dotazione ora si trova nell'aula: <b><?php echo $nomeAulaDestinazione ?: $idAulaDotazione ?></b>
                                 </div>
                             <?php endif; ?>
                         </div>

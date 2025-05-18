@@ -110,8 +110,13 @@
         </div>  
     </div>
     <div class="content">
-        <div class="logout">
-            <a class="logout-btn" href="..\..\logout\logout.php">
+        <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <!-- Bottone "indietro" -->
+            <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <!-- Bottone logout -->
+            <a class="logout-btn" href="../../logout/logout.php">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>

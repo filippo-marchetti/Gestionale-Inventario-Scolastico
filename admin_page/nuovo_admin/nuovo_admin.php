@@ -129,7 +129,12 @@ if (!is_null($username)) {
             </div>
             <!-- content -->
             <div class="content">
-                <div class="logout">
+                <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <!-- Bottone "indietro" -->
+                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <!-- Bottone logout -->
                     <a class="logout-btn" href="../logout/logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
@@ -141,35 +146,35 @@ if (!is_null($username)) {
                     <form action="" method="post">
                         <div class="form-group">
                             <label for="nome">Nome</label>
-                            <input type="text" name="nome" value="<?php if(isset($_POST['nome'])) echo htmlspecialchars($_POST['nome']); ?>">
+                            <input type="text" name="nome" value="<?php if(isset($_POST['nome'])) echo $_POST['nome']; ?>">
                             <?php if (isset($errors['nome'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['nome'] ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="cognome">Cognome</label>
-                            <input type="text" name="cognome" value="<?php if(isset($_POST['cognome'])) echo htmlspecialchars($_POST['cognome']); ?>">
+                            <input type="text" name="cognome" value="<?php if(isset($_POST['cognome'])) echo $_POST['cognome']; ?>">
                             <?php if (isset($errors['cognome'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['cognome'] ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="username_new">Username</label>
-                            <input type="text" name="username_new" value="<?php if(isset($_POST['username_new'])) echo htmlspecialchars($_POST['username_new']); ?>">
+                            <input type="text" name="username_new" value="<?php if(isset($_POST['username_new'])) echo $_POST['username_new']; ?>">
                             <?php if (isset($errors['username_new'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['username_new'] ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="text" name="email" value="<?php if(isset($_POST['email'])) echo htmlspecialchars($_POST['email']); ?>">
+                            <input type="text" name="email" value="<?php if(isset($_POST['email'])) echo $_POST['email']; ?>">
                             <?php if (isset($errors['email'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['email'] ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="text" name="password" value="<?php if(isset($_POST['password'])) echo htmlspecialchars($_POST['password']); ?>">
+                            <input type="text" name="password" value="<?php if(isset($_POST['password'])) echo $_POST['password']; ?>">
                             <?php if (isset($errors['password'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['password'] ?></small>
                             <?php endif; ?>

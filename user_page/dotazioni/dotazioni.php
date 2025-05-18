@@ -1,42 +1,42 @@
 <?php
-session_start();
+    session_start();
 
-// Connessione al database
-$host = 'localhost';
-$db = 'inventariosdarzo';
-$user = 'root';
-$pass = '';
+    // Connessione al database
+    $host = 'localhost';
+    $db = 'inventariosdarzo';
+    $user = 'root';
+    $pass = '';
 
-$username = $_SESSION['username'] ?? null;
-$role = $_SESSION['role'] ?? null;
+    $username = $_SESSION['username'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connessione fallita: " . $e->getMessage());
-}
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("Connessione fallita: " . $e->getMessage());
+    }
 
-// Verifica codice inventario
-if (!isset($_GET['codice'])) {
-    die("Codice inventario non specificato.");
-}
+    // Verifica codice inventario
+    if (!isset($_GET['codice'])) {
+        die("Codice inventario non specificato.");
+    }
 
-$codiceInventario = $_GET['codice'];
+    $codiceInventario = $_GET['codice'];
 
-// Recupera le dotazioni relative a quell'inventario
-try {
-    $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
-        FROM dotazione d
-        INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
-        WHERE ri.codice_inventario = ?
-    ");
-    $stmt->execute([$codiceInventario]);
-    $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Errore nella lettura delle dotazioni: " . $e->getMessage());
-}
+    // Recupera le dotazioni relative a quell'inventario
+    try {
+        $stmt = $conn->prepare("
+            SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
+            FROM dotazione d
+            INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
+            WHERE ri.codice_inventario = ?
+        ");
+        $stmt->execute([$codiceInventario]);
+        $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Errore nella lettura delle dotazioni: " . $e->getMessage());
+    }
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -80,8 +80,13 @@ try {
         </div>
         <!-- content -->
         <div class="content">
-            <div class="logout">
-                <a class="logout-btn" href="../../logout/logout.php">
+            <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <!-- Bottone "indietro" -->
+                <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <!-- Bottone logout -->
+                <a class="logout-btn" href="../logout/logout.php">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
