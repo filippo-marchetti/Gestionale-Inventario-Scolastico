@@ -1,13 +1,14 @@
 <?php
+session_start();
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 // Connessione al database
 $host = 'localhost';
 $db = 'inventariosdarzo';
 $user = 'root';
 $pass = '';
+
+$username = $_SESSION['username'] ?? null;
+$role = $_SESSION['role'] ?? null;
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
@@ -22,54 +23,108 @@ if (!isset($_GET['codice'])) {
 }
 
 $codiceInventario = $_GET['codice'];
-echo "<!-- Codice inventario: " . htmlspecialchars($codiceInventario) . " -->";
 
 // Recupera le dotazioni relative a quell'inventario
 try {
-$stmt = $conn->prepare("
-    SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
-    FROM dotazione d
-    INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
-    WHERE ri.codice_inventario = ?
-");
-$stmt->execute([$codiceInventario]);
-$dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+    $stmt = $conn->prepare("
+        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
+        FROM dotazione d
+        INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
+        WHERE ri.codice_inventario = ?
+    ");
+    $stmt->execute([$codiceInventario]);
+    $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Errore nella lettura delle dotazioni: " . $e->getMessage());
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <title>Dotazioni dell'inventario <?= htmlspecialchars($codiceInventario) ?></title>
-    <link rel="stylesheet" href="..\..\assets\css\shared_style_login_register.css">
     <link rel="stylesheet" href="..\..\assets\css\background.css">
-    <link rel="stylesheet" href="dotazioni.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_lista_dotazione.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="..\..\admin_page\lista_dotazione\lista_dotazione.js"></script>
 </head>
 <body>
     <div class="container">
-        <div class="header-section">
-            <h1>Dotazioni per l'inventario</h1>
-            <div class="subtitle">Codice inventario: <b><?= htmlspecialchars($codiceInventario) ?></b></div>
+        <!-- sidebar -->
+        <div class="sidebar">
+            <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
+            <div class="section-container">
+                <br>
+                <?php
+                    if($role == 'admin') {
+                        echo '<a href="../../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                    } else {
+                        echo '<a href="../user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                    }
+                ?>
+                <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                <?php
+                    if($role == "admin"){
+                        echo '<a href="../../admin_page/mostra_user_attivi/mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                        echo '<a href="../../admin_page/user_accept/user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                    };
+                ?>
+                <a href="../dotazioni/dotazioni.php?codice=<?= htmlspecialchars($codiceInventario) ?>"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                <a href="../dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                <a href="#"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+            </div>
         </div>
-        <?php if (count($dotazioni) === 0): ?>
-            <p class="no-results">Nessuna dotazione trovata per questo inventario.</p>
-        <?php else: ?>
-            <?php foreach ($dotazioni as $d): ?>
-                <div class="dotazione">
-                    <div><span class="label">Codice:</span> <?= htmlspecialchars($d['codice']) ?></div>
-                    <div><span class="label">Nome:</span> <?= htmlspecialchars($d['nome']) ?></div>
-                    <div><span class="label">Categoria:</span> <?= htmlspecialchars($d['categoria']) ?></div>
-                    <div><span class="label">Descrizione:</span> <?= htmlspecialchars($d['descrizione']) ?></div>
-                    <div><span class="label">Stato:</span> <?= htmlspecialchars($d['stato']) ?></div>
-                    <div><span class="label">Prezzo stimato:</span> €<?= htmlspecialchars($d['prezzo_stimato']) ?></div>
-                    <div><span class="label">ID Aula:</span> <?= htmlspecialchars($d['ID_aula']) ?></div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
+        <!-- content -->
+        <div class="content">
+            <div class="logout">
+                <a class="logout-btn" href="../../logout/logout.php">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            <h1>Dotazioni dell'inventario <?= htmlspecialchars($codiceInventario) ?></h1>
+            <div class="actions">
+                    <input type="text" id="filterInput" placeholder="Cerca per nome o codice" class="filter-input">
+                    <form method="post" action="aggiungi_dotazione_archiviata\aggiungi_dotazione_archiviata.php">
+                        <button class="btn-add"><i class="fas fa-plus"></i>Aggiungi</button>
+                    </form>
+            </div>
+            <div class="lista-dotazioni">
+                <?php if (count($dotazioni) === 0): ?>
+                    <p class="no-results">Nessuna dotazione trovata per questo inventario.</p>
+                <?php else: ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Codice</td>
+                                <td>Nome</td>
+                                <td>Categoria</td>
+                                <td>Descrizione</td>
+                                <td>Stato</td>
+                                <td>Prezzo Stimato</td>
+                                <td>Aula</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($dotazioni as $d): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($d['codice']) ?></td>
+                                    <td><?= htmlspecialchars($d['nome']) ?></td>
+                                    <td><?= htmlspecialchars($d['categoria']) ?></td>
+                                    <td><?= htmlspecialchars($d['descrizione']) ?></td>
+                                    <td><?= htmlspecialchars($d['stato']) ?></td>
+                                    <td><?= htmlspecialchars($d['prezzo_stimato']) ?>€</td>
+                                    <td><?= htmlspecialchars($d['ID_aula']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </body>
 </html>

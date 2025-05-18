@@ -63,13 +63,11 @@ if (!is_null($username)) {
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-
-        <h1>Aule</h1>
-
+        <h1>Inventari</h1>
         <div class="actions">
             <input type="text" id="filterInput" placeholder="Cerca per codice o descrizione" class="filter-input">
-            <form method="post" action="../aggiungi_aule/aggiungi_aule.php?id=<?php echo $idAula ?>">
-                <button class="btn-add"><i class="fas fa-plus"></i> Nuova Aula</button>
+            <form method="post" action="aggiungi_aula/aggiungi_aula.php">
+                <button class="btn-add"><i class="fas fa-plus"></i>Nuova Aula</button>
             </form>
         </div>
         <div class="lista-dotazioni">
