@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Connessione al database
 $host = 'localhost';
 $db = 'inventariosdarzo';
@@ -18,6 +20,11 @@ if (!isset($_GET['id'])) {
 
 $idAula = $_GET['id'];
 
+// Recupera descrizione aula
+$stmtAula = $conn->prepare("SELECT descrizione FROM aula WHERE ID_Aula = ?");
+$stmtAula->execute([$idAula]);
+$descrizioneAula = $stmtAula->fetchColumn();
+
 try {
     $stmt = $conn->prepare("
         SELECT i.codice_inventario, i.data_inventario, i.descrizione, s.nome AS nome_scuola
@@ -32,37 +39,90 @@ try {
     die("Errore nel recupero degli inventari: " . $e->getMessage());
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Inventari Aula <?= htmlspecialchars($idAula) ?></title>
-    <link rel="stylesheet" href="..\..\assets\css\shared_style_login_register.css">
-    <link rel="stylesheet" href="..\..\assets\css\background.css">
-    <link rel="stylesheet" href="inventari.css">
-    <title>Inventari</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="..\..\assets\css\background.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+        <link rel="stylesheet" href="inventari.css">
+        <title>Document</title>
         <!-- Font Awesome per icone-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="lista_dotazione.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Inventari dell'Aula <?= htmlspecialchars($idAula) ?></h1>
-
-        <a href="..\nuovo_inventario\nuovo_inventario.php?id=<?= urlencode($idAula) ?>" class="btn-nuovo">➕ Nuovo Inventario</a>
-
-        <?php if (count($inventari) === 0): ?>
-            <p class="no-results">Nessun inventario trovato per quest'aula.</p>
-        <?php else: ?>
-            <?php foreach ($inventari as $inv): ?>
-                <a class="inventario" href="..\dotazioni\dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
-                    <div><span class="label">Codice inventario:</span> <?= htmlspecialchars($inv['codice_inventario']) ?></div>
-                    <div><span class="label">Data inventario:</span> <?= htmlspecialchars($inv['data_inventario']) ?></div>
-                    <div><span class="label">Descrizione:</span> <?= htmlspecialchars($inv['descrizione']) ?></div>
-                    <div><span class="label">Scuola di appartenenza:</span> <?= htmlspecialchars($inv['nome_scuola'] ?? 'Non specificata') ?></div>
-                </a>
-            <?php endforeach; ?>
-        <?php endif; ?>
+        <!-- sidebar -->
+        <div class="sidebar">
+                <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
+                <!-- questa div conterrà i link delle schede -->
+                <div class="section-container">
+                    <br>
+                    <a href="..\admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
+                    <a href="boh.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>
+                    <a href="lista_dotazione.php"><div class="section selected"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                </div>  
+            </div>
+        <!-- content -->
+    <div class="content">
+        <div class="logout">
+            <a class="logout-btn" href="../../logout/logout.php">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+        <h1>Inventari</h1>
+        <div class="actions">
+            <input type="text" id="filterInput" placeholder="Cerca per codice o descrizione" class="filter-input">
+            <a href="../nuovo_inventario/nuovo_inventario.php?id=<?= urlencode($idAula) ?>" class="btn-add"><i class="fas fa-plus"></i> Nuovo Inventario</a>
+        </div>
+        <div class="lista-dotazioni">
+            <table>
+                    <thead>
+                        <td onclick="sortTable(0)">Codice Inventario</td>
+                        <td onclick="sortTable(1)">Data Inventario</td>
+                        <td onclick="sortTable(2)">Descrizione</td>
+                        <td onclick="sortTable(3)">Scuola di appartenenza</td>
+                        <td style="text-align: center;">Azioni</td>
+                    </thead>
+                <tbody>
+                    <?php if (count($inventari) === 0): ?>
+                        <tr>
+                            <td colspan="5" class="no-results">Nessun inventario trovato per quest'aula.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($inventari as $inv): 
+                                        echo "<tr>";
+                                        echo "<td>".$inv['codice_inventario']."</td>";
+                                        echo "<td>".$inv['data_inventario']."</td>";
+                                        echo "<td>".$inv['descrizione']."</td>";
+                                        echo "<td>".$inv['nome_scuola']."</td>";
+                                        ?>
+                                    <div class="div-action-btn">
+                                        <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($inv['codice_inventario']) ?>" title="Visualizza dotazioni">
+                                            <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
+                                        </a>
+                                        <a href="modifica_inventario.php?codice=<?= urlencode($inv['codice_inventario']) ?>">
+                                            <button class="btn-action btn-blu"><i class="fas fa-pen"></i></button>
+                                        </a>
+                                        <form method="POST" style="display:inline;">
+                                            <button name="elimina" class="btn-action btn-red">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
