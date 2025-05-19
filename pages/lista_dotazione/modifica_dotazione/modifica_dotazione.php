@@ -93,7 +93,7 @@ if (!is_null($username) && $role === "admin" || $role == "user") {
         die("Codice non fornito.");
     }
 } else {
-    header("Location: ../../logout/logout.php");
+    header("Location: ../../../logout/logout.php");
     exit;
 }
 ?>

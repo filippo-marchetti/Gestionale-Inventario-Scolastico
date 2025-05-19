@@ -83,7 +83,7 @@
             }
         }
     } else {
-        header("Location: ../logout/logout.php");
+        header("Location: ../../logout/logout.php");
         exit;
     }
 ?>

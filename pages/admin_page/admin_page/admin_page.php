@@ -43,7 +43,7 @@
         $stmt->execute();
         $inventari_piu_tecnici = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }else{
-        header("Location: ..\logout\logout.php");
+        header("Location: ..\..\..\logout\logout.php");
     }
 ?>
 <!DOCTYPE html>

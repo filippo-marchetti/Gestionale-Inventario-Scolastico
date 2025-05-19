@@ -1,45 +1,49 @@
 <?php
-session_start();
+    session_start();
 
-// Connessione al database
-$host = 'localhost';
-$db = 'inventariosdarzo';
-$user = 'root';
-$pass = '';
+    // Connessione al database
+    $host = 'localhost';
+    $db = 'inventariosdarzo';
+    $user = 'root';
+    $pass = '';
 
-$role = $_SESSION['role'];
+    $username = $_SESSION['username'] ?? null;
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connessione fallita: " . $e->getMessage());
-}
+    if(isset($username)){
+        try {
+            $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Connessione fallita: " . $e->getMessage());
+        }
 
-if (!isset($_GET['id'])) {
-    die("ID aula non specificato.");
-}
+        if (!isset($_GET['id'])) {
+            die("ID aula non specificato.");
+        }
 
-$idAula = $_GET['id'];
+        $idAula = $_GET['id'];
 
-// Recupera descrizione aula
-$stmtAula = $conn->prepare("SELECT descrizione FROM aula WHERE ID_Aula = ?");
-$stmtAula->execute([$idAula]);
-$descrizioneAula = $stmtAula->fetchColumn();
+        // Recupera descrizione aula
+        $stmtAula = $conn->prepare("SELECT descrizione FROM aula WHERE ID_Aula = ?");
+        $stmtAula->execute([$idAula]);
+        $descrizioneAula = $stmtAula->fetchColumn();
 
-try {
-    $stmt = $conn->prepare("
-        SELECT i.codice_inventario, i.data_inventario, i.descrizione, s.nome AS nome_scuola
-        FROM inventario i
-        LEFT JOIN scuola s ON i.scuola_appartenenza = s.codice_meccanografico
-        WHERE i.ID_Aula = ?
-        ORDER BY i.data_inventario DESC
-    ");
-    $stmt->execute([$idAula]);
-    $inventari = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Errore nel recupero degli inventari: " . $e->getMessage());
-}
+        try {
+            $stmt = $conn->prepare("
+                SELECT i.codice_inventario, i.data_inventario, i.descrizione, s.nome AS nome_scuola
+                FROM inventario i
+                LEFT JOIN scuola s ON i.scuola_appartenenza = s.codice_meccanografico
+                WHERE i.ID_Aula = ?
+                ORDER BY i.data_inventario DESC
+            ");
+            $stmt->execute([$idAula]);
+            $inventari = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Errore nel recupero degli inventari: " . $e->getMessage());
+        }
+    }else{
+        header("Location: ..\..\logout\logout.php");
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

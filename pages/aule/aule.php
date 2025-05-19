@@ -22,7 +22,7 @@ if (!is_null($username)) {
         die("Errore nella connessione o nella query: " . $e->getMessage());
     }
 } else {
-    header("Location: ..\logout\logout.php");
+    header("Location: ..\..\logout\logout.php");
     exit();
 }
 ?>

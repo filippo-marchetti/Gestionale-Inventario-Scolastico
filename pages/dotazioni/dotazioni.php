@@ -10,32 +10,36 @@
     $username = $_SESSION['username'] ?? null;
     $role = $_SESSION['role'] ?? null;
 
-    try {
-        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Connessione fallita: " . $e->getMessage());
-    }
+    if(isset($role)){
+        try {
+            $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Connessione fallita: " . $e->getMessage());
+        }
 
-    // Verifica codice inventario
-    if (!isset($_GET['codice'])) {
-        die("Codice inventario non specificato.");
-    }
+        // Verifica codice inventario
+        if (!isset($_GET['codice'])) {
+            die("Codice inventario non specificato.");
+        }
 
-    $codiceInventario = $_GET['codice'];
+        $codiceInventario = $_GET['codice'];
 
-    // Recupera le dotazioni relative a quell'inventario
-    try {
-        $stmt = $conn->prepare("
-            SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
-            FROM dotazione d
-            INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
-            WHERE ri.codice_inventario = ?
-        ");
-        $stmt->execute([$codiceInventario]);
-        $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        die("Errore nella lettura delle dotazioni: " . $e->getMessage());
+        // Recupera le dotazioni relative a quell'inventario
+        try {
+            $stmt = $conn->prepare("
+                SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato, d.prezzo_stimato, d.ID_aula
+                FROM dotazione d
+                INNER JOIN riga_inventario ri ON d.codice = ri.codice_dotazione
+                WHERE ri.codice_inventario = ?
+            ");
+            $stmt->execute([$codiceInventario]);
+            $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Errore nella lettura delle dotazioni: " . $e->getMessage());
+        }
+    }else{
+        header("Location: ..\..\logout\logout.php");
     }
 ?>
 <!DOCTYPE html>

@@ -24,7 +24,7 @@
             $stmt->execute();
         }
     }else{
-        header("Location: ..\logout\logout.php");
+        header("Location: ..\..\logout\logout.php");
     }
 ?>
 <!DOCTYPE html>
