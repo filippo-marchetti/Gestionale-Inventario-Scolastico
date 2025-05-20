@@ -122,30 +122,36 @@ if (!is_null($username) && $role === "admin" || $role == "user") {
                     <br>
                     <?php
                         if($role == 'admin') {
-                            echo '<a href="../../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                            echo '<a href="../../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
                         } else {
-                            echo '<a href="../../../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                            echo '<a href="../../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
                         }
                     ?>
-                    <a href="../../../user_page/aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <a href="../../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <?php
                         if($role == "admin"){
-                            echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                            echo '<a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
                         };
                     ?>
                     <a href="..\..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                     <a href="..\..\dotazione_archiviata\dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
                     <a href="..\..\dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
                     <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
-                    <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                    <a href="..\..\impostazioni\impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
             <!-- content contiene tutto ciò che è al di fuori della sidebar -->
             <div class="content">
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
-                <div class="logout">
-                    <a class="logout-btn" href="..\..\logout\logout.php">
+                <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <!-- Bottone "indietro" -->
+                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <!-- Bottone logout -->
+                    <a class="logout-btn" href="../../logout/logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>

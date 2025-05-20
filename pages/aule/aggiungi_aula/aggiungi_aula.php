@@ -96,9 +96,9 @@ if (!is_null($username)) {
                     <a href="../../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <?php
                         if($role == "admin"){
-                            echo '<a href="..\..\..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                            echo '<a href="..\..\..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
-                            echo '<a href="..\..\..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                            echo '<a href="..\..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
                         };
                     ?>
                     <a href="..\../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
@@ -127,7 +127,7 @@ if (!is_null($username)) {
                 <div class="form-container">
                     <form action="" method="post">
                         <div class="form-group">
-                            <label for="codice">Codice</label>
+                            <label for="codice">Nome</label>
                             <input type="text" name="codice" value="<?php if(isset($_POST['codice'])) echo htmlspecialchars($_POST['codice']); ?>">
                             <?php if (isset($errors['codice'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['codice'] ?></small>

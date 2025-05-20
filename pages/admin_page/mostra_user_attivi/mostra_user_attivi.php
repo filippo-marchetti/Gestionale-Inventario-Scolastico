@@ -33,7 +33,7 @@
         <link rel="stylesheet" href="..\..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\..\assets\css\shared_admin_subpages.css">
         <link rel="stylesheet" href="mostra_user_attivi.css">
-        <title>Document</title>
+        <title>Utenti attivi</title>
         <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     </head>

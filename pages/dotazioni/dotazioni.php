@@ -80,7 +80,7 @@
                 <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                 <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
                 <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
+                <a href="../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
                 <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
             </div>
         </div>
@@ -99,9 +99,6 @@
             <h1>Dotazioni dell'inventario <?= htmlspecialchars($codiceInventario) ?></h1>
             <div class="actions">
                     <input type="text" id="filterInput" placeholder="Cerca per nome o codice" class="filter-input">
-                    <form method="post" action="aggiungi_dotazione_archiviata\aggiungi_dotazione_archiviata.php">
-                        <button class="btn-add"><i class="fas fa-plus"></i>Aggiungi</button>
-                    </form>
             </div>
             <div class="lista-dotazioni">
                 <?php if (count($dotazioni) === 0): ?>
