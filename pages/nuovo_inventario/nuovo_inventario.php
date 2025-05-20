@@ -19,24 +19,27 @@ if (!is_array($codiciDaSpuntare)) {
     $codiciDaSpuntare = [$codiciDaSpuntare];
 }
 
-if (!$idAula) die("ID aula non specificato.");
+if (!$idAula) {
+    die("ID aula non specificato.");
+}
 
-$dateStr = date('dmY');
+// Generazione codice inventario (max 9 caratteri)
 $iniziale = substr($idAula, 0, 1);
 $finale = substr($idAula, -1, 1);
-$codiceInventario = strtoupper($iniziale . $finale . $dateStr);
-$codiceInventario = substr($codiceInventario, 0, 9); // massimo 9 caratteri
+$data = date('dmY'); // es: 20052025
+$codiceInventario = strtoupper($iniziale . $finale . $data);
+$codiceInventario = substr($codiceInventario, 0, 9);
 
-// Verifica unicità
+// Assicura codice univoco
 $stmt = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
 while (true) {
     $stmt->execute([$codiceInventario]);
     if (!$stmt->fetchColumn()) break;
-    $codiceInventario = strtoupper($iniziale . $finale . random_int(100000, 999999));
+    $codiceInventario = strtoupper($iniziale . $finale . str_pad(strval(random_int(0, 999999)), 7, '0', STR_PAD_LEFT));
     $codiceInventario = substr($codiceInventario, 0, 9);
 }
 
-// Leggi ultimo inventario
+// Recupera ultimo inventario in ordine cronologico reale (con DATETIME)
 $stmt = $conn->prepare("
     SELECT codice_inventario
     FROM inventario
@@ -47,7 +50,10 @@ $stmt = $conn->prepare("
 $stmt->execute([$idAula]);
 $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Dotazioni: da ultimo inventario + da scan.php
 $dotazioni = [];
+$codiciPresenti = [];
+
 if ($lastInv) {
     $stmt = $conn->prepare("
         SELECT d.codice, d.nome, d.categoria, d.stato, d.ID_aula AS aula_corrente
@@ -57,6 +63,21 @@ if ($lastInv) {
     ");
     $stmt->execute([$lastInv['codice_inventario']]);
     $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $codiciPresenti = array_column($dotazioni, 'codice');
+}
+
+// Aggiungi dotazioni da scan.php se non già presenti
+$nuoviCodici = array_diff($codiciDaSpuntare, $codiciPresenti);
+if (!empty($nuoviCodici)) {
+    $placeholders = implode(',', array_fill(0, count($nuoviCodici), '?'));
+    $stmt = $conn->prepare("
+        SELECT codice, nome, categoria, stato, ID_aula AS aula_corrente
+        FROM dotazione
+        WHERE codice IN ($placeholders)
+    ");
+    $stmt->execute($nuoviCodici);
+    $nuoveDotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $dotazioni = array_merge($dotazioni, $nuoveDotazioni);
 }
 
 $errors = [];
@@ -65,27 +86,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descrizione = trim($_POST['descrizione'] ?? '');
     $spuntati = $_POST['dotazione_presente'] ?? [];
 
-    if (!$descrizione) $errors[] = "Inserire una descrizione.";
+    if (!$descrizione) {
+        $errors[] = "Inserire una descrizione.";
+    }
 
     if (empty($errors)) {
-        // Salva inventario
+        // Inserisci inventario
         $stmt = $conn->prepare("
             INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
             VALUES (?, NOW(), ?, ?, NULL, '')
         ");
         $stmt->execute([$codiceInventario, $descrizione, $idAula]);
 
-        // Aggiungi dotazioni spuntate
+        // Inserisci righe + aggiorna dotazioni
         $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
+        $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
+
         foreach ($spuntati as $codice) {
             $stmtAdd->execute([$codice, $codiceInventario]);
-
-            // Aggiorna l’aula della dotazione
-            $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ? WHERE codice = ?");
             $stmtUpdate->execute([$idAula, $codice]);
         }
 
-        $_SESSION['success_message'] = "Inventario salvato.";
+        $_SESSION['success_message'] = "Inventario creato e stato dotazioni aggiornato a 'presente'.";
         header("Location: inventari.php?id=" . urlencode($idAula));
         exit;
     }
@@ -98,53 +120,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Nuovo Inventario</title>
     <style>
-        .container { max-width: 800px; margin: 30px auto; font-family: sans-serif; }
+        .container { max-width: 900px; margin: 30px auto; font-family: Arial, sans-serif; }
         .dotazione { padding: 10px; border-bottom: 1px solid #ccc; }
         .warning { color: red; font-size: 0.9em; }
+        .success-scan { color: green; font-weight: bold; font-size: 0.9em; }
         .btn { padding: 10px 20px; margin-top: 20px; background: #444; color: white; border: none; cursor: pointer; }
         .btn-scan { text-decoration: none; background: #0077cc; color: white; padding: 10px 15px; border-radius: 5px; display: inline-block; margin-bottom: 20px; }
+        .error { color: red; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Nuovo Inventario per aula <?= htmlspecialchars($idAula) ?></h1>
+    <h1>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></h1>
 
-    <a class="btn-scan" href="scan.php?<?= http_build_query([
+    <a href="scan.php?<?= http_build_query([
         'id' => $idAula,
         'codice_inventario' => $codiceInventario,
         'spuntato' => $codiciDaSpuntare
-    ]) ?>">📷 Scansiona dotazione</a>
+    ]) ?>" class="btn-scan">📷 Scansiona Dotazione</a>
 
     <?php if (!empty($errors)): ?>
         <div class="error">
-            <ul><?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?></ul>
+            <ul>
+                <?php foreach ($errors as $err): ?>
+                    <li><?= htmlspecialchars($err) ?></li>
+                <?php endforeach; ?>
+            </ul>
         </div>
     <?php endif; ?>
 
     <form method="post">
         <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>">
-        <label>Codice Inventario: <strong><?= htmlspecialchars($codiceInventario) ?></strong></label><br><br>
 
-        <label>Descrizione:</label><br>
-        <input type="text" name="descrizione" style="width:100%;" required><br><br>
+        <label>Codice Inventario:</label>
+        <input type="text" value="<?= htmlspecialchars($codiceInventario) ?>" readonly><br><br>
 
-        <h3>Dotazioni precedenti:</h3>
+        <label>Descrizione:</label>
+        <input type="text" name="descrizione" required style="width:100%;"><br><br>
+
+        <h3>Dotazioni incluse:</h3>
         <?php foreach ($dotazioni as $d): ?>
-            <?php $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula); ?>
+            <?php
+                $codice = $d['codice'];
+                $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
+                $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+            ?>
             <div class="dotazione">
                 <label>
-                    <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>"
-                        <?= in_array($d['codice'], $codiciDaSpuntare) ? 'checked' : '' ?>>
+                    <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($codice) ?>"
+                        <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
                     <strong><?= htmlspecialchars($d['nome']) ?></strong> (<?= htmlspecialchars($d['categoria']) ?>)
                 </label><br>
-                Codice: <?= htmlspecialchars($d['codice']) ?> | Stato: <?= htmlspecialchars($d['stato']) ?>
+                Codice: <?= htmlspecialchars($codice) ?> | Stato: <?= htmlspecialchars($d['stato']) ?>
                 <?php if ($altAula): ?>
-                    <div class="warning">⚠ Attenzione: attualmente in aula <?= htmlspecialchars($d['aula_corrente']) ?></div>
+                    <div class="warning">⚠ Attualmente si trova in aula <?= htmlspecialchars($d['aula_corrente']) ?></div>
+                <?php endif; ?>
+                <?php if ($aggiuntaDaScan): ?>
+                    <div class="success-scan">✅ Aggiunta tramite scansione</div>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
 
-        <button type="submit" class="btn">💾 Salva Inventario</button>
+        <br><button type="submit" class="btn">💾 Salva Inventario</button>
     </form>
 </div>
 </body>
