@@ -1,218 +1,151 @@
 <?php
 session_start();
+
 $host = 'localhost';
 $db = 'inventariosdarzo';
 $user = 'root';
 $pass = '';
 
-$username = $_SESSION['username'] ?? null;
-$role = $_SESSION['role'] ?? null;
-
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Connessione fallita: " . $e->getMessage());
 }
 
 $idAula = $_GET['id'] ?? null;
+$codiciDaSpuntare = $_GET['spuntato'] ?? [];
+if (!is_array($codiciDaSpuntare)) {
+    $codiciDaSpuntare = [$codiciDaSpuntare];
+}
+
 if (!$idAula) die("ID aula non specificato.");
 
-$nomeAula = $idAula; // ID_Aula già contiene il codice aula (es. LAB01)
+$dateStr = date('dmY');
+$iniziale = substr($idAula, 0, 1);
+$finale = substr($idAula, -1, 1);
+$codiceInventario = strtoupper($iniziale . $finale . $dateStr);
+$codiceInventario = substr($codiceInventario, 0, 9); // massimo 9 caratteri
 
-// Recupera ultimo inventario
+// Verifica unicità
+$stmt = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
+while (true) {
+    $stmt->execute([$codiceInventario]);
+    if (!$stmt->fetchColumn()) break;
+    $codiceInventario = strtoupper($iniziale . $finale . random_int(100000, 999999));
+    $codiceInventario = substr($codiceInventario, 0, 9);
+}
+
+// Leggi ultimo inventario
 $stmt = $conn->prepare("
-    SELECT codice_inventario, descrizione, data_inventario, scuola_appartenenza
+    SELECT codice_inventario
     FROM inventario
-    WHERE ID_Aula = ?
+    WHERE ID_aula = ?
     ORDER BY data_inventario DESC
     LIMIT 1
 ");
 $stmt->execute([$idAula]);
-$lastInventario = $stmt->fetch(PDO::FETCH_ASSOC);
+$lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $dotazioni = [];
-$scuolaAppartenenza = null;
-if ($lastInventario) {
-    $codiceInventarioPrecedente = $lastInventario['codice_inventario'];
-    $scuolaAppartenenza = $lastInventario['scuola_appartenenza'];
-
+if ($lastInv) {
     $stmt = $conn->prepare("
-        SELECT d.codice, d.nome, d.categoria, d.descrizione, d.stato
+        SELECT d.codice, d.nome, d.categoria, d.stato, d.ID_aula AS aula_corrente
         FROM riga_inventario ri
         JOIN dotazione d ON ri.codice_dotazione = d.codice
         WHERE ri.codice_inventario = ?
     ");
-    $stmt->execute([$codiceInventarioPrecedente]);
+    $stmt->execute([$lastInv['codice_inventario']]);
     $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Genera codice inventario nel formato: prima+ultima lettera ID aula + giorno + mese + anno
-$oggi = date('ymd'); // formato YYMMDD
-$idPulito = preg_replace('/\s+/', '', strtoupper($idAula));
-$iniziale = substr($idPulito, 0, 1);
-$finale = substr($idPulito, -1);
-$baseCodice = $iniziale . $finale . $oggi;
-
-// Verifica univocità e aggiunge lettera finale se necessario
-$codiceInventario = $baseCodice;
-$stmtCheckCodice = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
-$suffix = 'A';
-
-while (true) {
-    $stmtCheckCodice->execute([$codiceInventario]);
-    if (!$stmtCheckCodice->fetchColumn()) break;
-    $codiceInventario = $baseCodice . $suffix;
-    $suffix++;
-}
-
-// Recupera dotazioni spuntate da GET (ad esempio da scan.php)
-$dotazioniSpuntate = $_GET['spuntato'] ?? [];
-if (!is_array($dotazioniSpuntate)) {
-    $dotazioniSpuntate = [$dotazioniSpuntate];
-}
-
-// Se POST: salva nuovo inventario
 $errors = [];
-$descrizioneVal = $_POST['descrizione'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descrizione = trim($_POST['descrizione'] ?? '');
-    $dotazioniSelezionate = $_POST['dotazione_presente'] ?? [];
+    $spuntati = $_POST['dotazione_presente'] ?? [];
 
-    if ($descrizione === '') {
-        $errors['descrizione'] = "La descrizione è obbligatoria.";
-    }
+    if (!$descrizione) $errors[] = "Inserire una descrizione.";
 
     if (empty($errors)) {
-        try {
-            // Inserisce inventario
-            $stmt = $conn->prepare("
-                INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_Aula, scuola_appartenenza)
-                VALUES (?, NOW(), ?, ?, ?)
-            ");
-            $stmt->execute([$codiceInventario, $descrizione, $idAula, $scuolaAppartenenza]);
+        // Salva inventario
+        $stmt = $conn->prepare("
+            INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
+            VALUES (?, NOW(), ?, ?, NULL, '')
+        ");
+        $stmt->execute([$codiceInventario, $descrizione, $idAula]);
 
-            // Inserisce righe e aggiorna stato dotazioni
-            $stmtInsert = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-            $stmtUpdateStato = $conn->prepare("UPDATE dotazione SET stato = ? WHERE codice = ?");
+        // Aggiungi dotazioni spuntate
+        $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
+        foreach ($spuntati as $codice) {
+            $stmtAdd->execute([$codice, $codiceInventario]);
 
-            foreach ($dotazioni as $dotazione) {
-                $codice = $dotazione['codice'];
-                if (in_array($codice, $dotazioniSelezionate)) {
-                    $stmtInsert->execute([$codice, $codiceInventario]);
-                    $stmtUpdateStato->execute(['presente', $codice]);
-                } else {
-                    $stmtUpdateStato->execute(['mancante', $codice]);
-                }
-            }
-
-            // Redirect per evitare doppio POST
-            header("Location: nuovo_inventario.php?id=" . urlencode($idAula));
-            exit;
-        } catch (PDOException $e) {
-            $errors['db'] = "Errore nel salvataggio: " . $e->getMessage();
+            // Aggiorna l’aula della dotazione
+            $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ? WHERE codice = ?");
+            $stmtUpdate->execute([$idAula, $codice]);
         }
+
+        $_SESSION['success_message'] = "Inventario salvato.";
+        header("Location: inventari.php?id=" . urlencode($idAula));
+        exit;
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></title>
-    <link rel="stylesheet" href="../../assets/css/background.css" />
-    <link rel="stylesheet" href="../../assets/css/shared_style_user_admin.css" />
-    <link rel="stylesheet" href="../../assets/css/shared_admin_subpages.css" />
-    <link rel="stylesheet" href="nuovo_inventario.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <meta charset="UTF-8">
+    <title>Nuovo Inventario</title>
+    <style>
+        .container { max-width: 800px; margin: 30px auto; font-family: sans-serif; }
+        .dotazione { padding: 10px; border-bottom: 1px solid #ccc; }
+        .warning { color: red; font-size: 0.9em; }
+        .btn { padding: 10px 20px; margin-top: 20px; background: #444; color: white; border: none; cursor: pointer; }
+        .btn-scan { text-decoration: none; background: #0077cc; color: white; padding: 10px 15px; border-radius: 5px; display: inline-block; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class="sidebar">
-        <div class="image"><img src="../../assets/images/logo_darzo.png" width="120px" alt="Logo Darzo" /></div>
-        <div class="section-container">
-            <br />
-            <?php if ($role === 'admin'): ?>
-                <a href="../../admin_page/admin_page.php">
-                    <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
-                </a>
-            <?php else: ?>
-                <a href="../user_page.php">
-                    <div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div>
-                </a>
-            <?php endif; ?>
-            <a href="../aule/aule.php">
-                <div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div>
-            </a>
-            <a href="../dotazioni/dotazioni.php?codice=<?= urlencode($codiceInventario) ?>">
-                <div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i> DOTAZIONE</span></div>
-            </a>
-            <a href="../dotazione_archiviata.php">
-                <div class="section"><span class="section-text"><i class="fas fa-warehouse"></i> MAGAZZINO</span></div>
-            </a>
-            <a href="../dotazione_eliminata/dotazione_eliminata.php">
-                <div class="section"><span class="section-text"><i class="fas fa-trash"></i> STORICO SCARTI</span></div>
-            </a>
-            <a href="../../dotazione_mancante/dotazione_mancante.php">
-                <div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div>
-            </a>
-            <a href="#">
-                <div class="section"><span class="section-text"><i class="fas fa-cogs"></i> IMPOSTAZIONI</span></div>
-            </a>
+    <h1>Nuovo Inventario per aula <?= htmlspecialchars($idAula) ?></h1>
+
+    <a class="btn-scan" href="scan.php?<?= http_build_query([
+        'id' => $idAula,
+        'codice_inventario' => $codiceInventario,
+        'spuntato' => $codiciDaSpuntare
+    ]) ?>">📷 Scansiona dotazione</a>
+
+    <?php if (!empty($errors)): ?>
+        <div class="error">
+            <ul><?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?></ul>
         </div>
-    </div>
+    <?php endif; ?>
 
-    <div class="content">
-        <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-            <a class="logout-btn" href="../logout/logout.php">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-        </div>
+    <form method="post">
+        <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>">
+        <label>Codice Inventario: <strong><?= htmlspecialchars($codiceInventario) ?></strong></label><br><br>
 
-        <h1>Nuovo Inventario</h1>
+        <label>Descrizione:</label><br>
+        <input type="text" name="descrizione" style="width:100%;" required><br><br>
 
-        <form method="post" class="form-inventario" novalidate>
-            <label>Codice Inventario:</label>
-            <input type="text" id="codice_inventario" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>" readonly />
-
-            <label for="descrizione">Descrizione inventario:</label>
-            <input type="text" id="descrizione" name="descrizione" value="<?= htmlspecialchars($_POST['descrizione'] ?? '') ?>" />
-            <?php if (!empty($errors['descrizione'])): ?>
-                <div class="error"><?= htmlspecialchars($errors['descrizione']) ?></div>
-            <?php endif; ?>
-
-            <h2>Seleziona dotazioni presenti:</h2>
-            <ul class="lista-dotazioni">
-                <?php if (empty($dotazioni)): ?>
-                    <li>Nessuna dotazione trovata per l'ultimo inventario.</li>
-                <?php else: ?>
-                    <?php foreach ($dotazioni as $dotazione): 
-                        // Se il codice è presente in GET['spuntato'], spuntalo di default
-                        $checked = in_array($dotazione['codice'], $_POST['dotazione_presente'] ?? $dotazioniSpuntate) ? 'checked' : '';
-                    ?>
-                        <li>
-                            <input type="checkbox" id="dotazione_<?= htmlspecialchars($dotazione['codice']) ?>" name="dotazione_presente[]" value="<?= htmlspecialchars($dotazione['codice']) ?>" <?= $checked ?> />
-                            <label for="dotazione_<?= htmlspecialchars($dotazione['codice']) ?>">
-                                <?= htmlspecialchars($dotazione['nome']) ?> - <small><?= htmlspecialchars($dotazione['categoria']) ?></small>
-                            </label>
-                        </li>
-                    <?php endforeach; ?>
+        <h3>Dotazioni precedenti:</h3>
+        <?php foreach ($dotazioni as $d): ?>
+            <?php $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula); ?>
+            <div class="dotazione">
+                <label>
+                    <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($d['codice']) ?>"
+                        <?= in_array($d['codice'], $codiciDaSpuntare) ? 'checked' : '' ?>>
+                    <strong><?= htmlspecialchars($d['nome']) ?></strong> (<?= htmlspecialchars($d['categoria']) ?>)
+                </label><br>
+                Codice: <?= htmlspecialchars($d['codice']) ?> | Stato: <?= htmlspecialchars($d['stato']) ?>
+                <?php if ($altAula): ?>
+                    <div class="warning">⚠ Attenzione: attualmente in aula <?= htmlspecialchars($d['aula_corrente']) ?></div>
                 <?php endif; ?>
-            </ul>
+            </div>
+        <?php endforeach; ?>
 
-            <button type="submit">Salva</button>
-            <a href="scan.php?id=<?= urlencode($idAula) ?>" class="scan-btn">SCAN</a>
-
-            <?php if (!empty($errors['db'])): ?>
-                <div class="error"><?= htmlspecialchars($errors['db']) ?></div>
-            <?php endif; ?>
-        </form>
-    </div>
+        <button type="submit" class="btn">💾 Salva Inventario</button>
+    </form>
 </div>
 </body>
 </html>
