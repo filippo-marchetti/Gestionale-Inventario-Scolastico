@@ -1,13 +1,17 @@
 <?php
-    session_start();
+    session_start(); // Avvia la sessione
 
-    $role = $_SESSION['role'];
+    $spuntati = isset($_SESSION['spuntati']) ? $_SESSION['spuntati'] : [];
 
+    $role = $_SESSION['role']; // Recupera il ruolo dell'utente (admin o tecnico)
+
+    // Dati per la connessione al database
     $host = 'localhost';
     $db = 'inventariosdarzo';
     $user = 'root';
     $pass = '';
 
+    // Connessione al database con gestione errori
     try {
         $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -15,32 +19,42 @@
         die("Connessione fallita: " . $e->getMessage());
     }
 
+    // Recupera l'ID dell'aula dalla query string
     $idAula = $_GET['id'] ?? null;
+
+    // Recupera i codici delle dotazioni spuntate da scan.php (può essere una stringa o array)
     $codiciDaSpuntare = $_GET['spuntato'] ?? [];
     if (!is_array($codiciDaSpuntare)) {
-        $codiciDaSpuntare = [$codiciDaSpuntare];
+        $codiciDaSpuntare = [$codiciDaSpuntare]; // Converte in array se necessario
     }
 
     if (!$idAula) {
-        die("ID aula non specificato.");
+        die("ID aula non specificato."); // Blocca se manca ID aula
     }
 
-    // Generazione codice inventario
+    // Genera il codice inventario in base all’ID aula e data
     $iniziale = substr($idAula, 0, 1);
-    $finale = substr($idAula, -1, 1); //offset -1 restituisce l'ultima posizione
+    $finale = substr($idAula, -1, 1);
     $data = date('dmy');
-    $codiceInventario = strtoupper($iniziale . $finale . $data);
+    $baseCodice = strtoupper($iniziale . $finale . $data);
 
-    // Assicura codice univoco
-    $stmt = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
-    while (true) {
-        $stmt->execute([$codiceInventario]);
-        if (!$stmt->fetchColumn()) break;
-        $codiceInventario = strtoupper($iniziale . $finale . str_pad(strval(random_int(0, 999999)), 7, '0', STR_PAD_LEFT));
-        $codiceInventario = substr($codiceInventario, 0, 9);
-    }
+    // Conta quanti inventari esistono oggi per quell’aula
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) 
+        FROM inventario 
+        WHERE ID_aula = ? 
+        AND DATE(data_inventario) = CURDATE()
+    ");
+    $stmt->execute([$idAula]);
+    $count = $stmt->fetchColumn();
 
-    // Recupera ultimo inventario in ordine cronologico
+    // Converti il numero in lettera (0 → A, 1 → B, ...)
+    $lettera = chr(65 + $count);
+
+    // Codice finale
+    $codiceInventario = $baseCodice . $lettera;
+
+    // Recupera l'ultimo inventario effettuato per l'aula selezionata
     $stmt = $conn->prepare("
         SELECT codice_inventario
         FROM inventario
@@ -48,14 +62,14 @@
         ORDER BY data_inventario DESC
         LIMIT 1
     ");
-
     $stmt->execute([$idAula]);
     $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Dotazioni: da ultimo inventario + da scan.php
+
+    // Inizializza dotazioni e array di codici già presenti
     $dotazioni = [];
     $codiciPresenti = [];
 
+    // Recupera le dotazioni dell'ultimo inventario
     if ($lastInv) {
         $stmt = $conn->prepare("
             SELECT d.codice, d.nome, d.categoria, d.stato, d.ID_aula AS aula_corrente
@@ -68,7 +82,7 @@
         $codiciPresenti = array_column($dotazioni, 'codice');
     }
 
-    // Aggiungi dotazioni da scan.php se non già presenti
+    // Aggiunge eventuali nuove dotazioni selezionate tramite scan.php che non erano nel precedente inventario
     $nuoviCodici = array_diff($codiciDaSpuntare, $codiciPresenti);
     if (!empty($nuoviCodici)) {
         $placeholders = implode(',', array_fill(0, count($nuoviCodici), '?'));
@@ -84,38 +98,48 @@
 
     $errors = [];
 
+    // Se il form è stato inviato
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descrizione = trim($_POST['descrizione'] ?? '');
         $spuntati = $_POST['dotazione_presente'] ?? [];
 
-    if (!$descrizione) {
-        $errors[] = "Inserire una descrizione.";
-    }
-
-    if (empty($errors)) {
-        // Inserisci inventario
-        $stmt = $conn->prepare("
-            INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
-            VALUES (?, NOW(), ?, ?, NULL, '')
-        ");
-        $stmt->execute([$codiceInventario, $descrizione, $idAula]);
-
-        // Inserisci righe + aggiorna dotazioni
-        $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-        $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
-
-        foreach ($spuntati as $codice) {
-            $stmtAdd->execute([$codice, $codiceInventario]);
-            $stmtUpdate->execute([$idAula, $codice]);
+        if (!$descrizione) {
+            $errors[] = "Inserire una descrizione."; // Messaggio errore se descrizione mancante
         }
 
-        $_SESSION['success_message'] = "Inventario creato e stato dotazioni aggiornato a 'presente'.";
-        header("Location: inventari.php?id=" . urlencode($idAula));
-        exit;
-    }
+        if (empty($errors)) {
+            // Inserisce un nuovo inventario
+            $stmt = $conn->prepare("
+                INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
+                VALUES (?, NOW(), ?, ?, NULL, '')
+            ");
+            $stmt->execute([$codiceInventario, $descrizione, $idAula]);
+
+            // Inserisce le righe di inventario e aggiorna la dotazione
+            $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
+            $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
+
+            foreach ($spuntati as $codice) {
+                $stmtAdd->execute([$codice, $codiceInventario]);
+                $stmtUpdate->execute([$idAula, $codice]);
+            }
+
+            // Nuovo blocco: imposta "mancante" le dotazioni del vecchio inventario non spuntate
+            $codiciPrecedenti = array_column($dotazioni, 'codice');
+            $codiciMancanti = array_diff($codiciPrecedenti, $spuntati);
+
+            $stmtManca = $conn->prepare("UPDATE dotazione SET stato = 'mancante' WHERE codice = ?");
+            foreach ($codiciMancanti as $codiceMancante) {
+                $stmtManca->execute([$codiceMancante]);
+            }
+
+            // Messaggio di successo e reindirizzamento
+            $_SESSION['success_message'] = "Inventario creato e stato dotazioni aggiornato a 'presente'.";
+            header("Location: ..\inventari\inventari.php?id=" . urlencode($idAula));
+            exit;
+        }
     }
 ?>
-     
 
 <!DOCTYPE html>
 <html lang="it">
@@ -191,10 +215,6 @@
                     <label>Descrizione:</label>
                     <input type="text" name="descrizione" required>
 
-                    
-                </form>
-                
-                <form class="btn-form">
                     <br><button type="submit" class="btn-scan-save">Salva Inventario</button>
 
                     <a href="scan.php?<?= http_build_query([
@@ -202,31 +222,31 @@
                         'codice_inventario' => $codiceInventario,
                         'spuntato' => $codiciDaSpuntare
                     ]) ?>" class="btn-scan-save">Scansiona Dotazione</a>
-                </form> 
-            
-                <h3>Dotazioni incluse:</h3>
-                <?php foreach ($dotazioni as $d): ?>
-                    <?php
-                        $codice = $d['codice'];
-                        $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
-                        $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
-                    ?>
-                    <div class="dotazione">
-                        <label>
-                            <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
-                                <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
-                            <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
-                        </label><br>
-                        Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
-                        <?php if ($altAula): ?>
-                            <div class="warning">⚠ Attualmente si trova in aula <?php echo $d['aula_corrente'] ?></div>
-                        <?php endif; ?>
-                        <?php if ($aggiuntaDaScan): ?>
-                            <div class="success-scan">Aggiunta tramite scansione</div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
                 
+                
+                    <h3>Dotazioni incluse:</h3>
+                    <?php foreach ($dotazioni as $d): ?>
+                        <?php
+                            $codice = $d['codice'];
+                            $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
+                            $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+                        ?>
+                        <div class="dotazione">
+                            <label>
+                                <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
+                                    <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
+                                <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
+                            </label><br>
+                            Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
+                            <?php if ($altAula): ?>
+                                <div class="warning">⚠ Attualmente si trova in aula <?php echo $d['aula_corrente'] ?></div>
+                            <?php endif; ?>
+                            <?php if ($aggiuntaDaScan): ?>
+                                <div class="success-scan">Aggiunta tramite scansione</div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </form>
             </div>
         </div>
     </body>

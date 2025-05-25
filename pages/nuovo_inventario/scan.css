@@ -55,12 +55,8 @@ button:hover, .btn-back:hover {
     margin-bottom: 8px;
     font-size: 1.08em;
 }
-.error {
-    background: #fff3f3;
-    border: 1px solid #ffd6d6;
-    color: #c17213;
-    border-radius: 8px;
-    padding: 10px 14px;
+.error-code{
     margin-top: 10px;
-    margin-bottom: 0;
+    color: #c17213;
+    text-decoration: underline;
 }

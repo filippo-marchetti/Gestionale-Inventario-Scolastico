@@ -1,27 +1,16 @@
+
 <?php
-    session_start();
     session_start();
 
     $role = $_SESSION['role'] ?? null;
-    $role = $_SESSION["role"];
 
     $host = 'localhost';
     $db = 'inventariosdarzo';
     $user = 'root';
     $pass = '';
 
-    $messaggio = "";
-    $host = 'localhost';
-    $db = 'inventariosdarzo';
-    $user = 'root';
-    $pass = '';
+    $errore = "";
 
-    try {
-        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Errore di connessione: " . $e->getMessage());
-    }
     try {
         $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -36,100 +25,31 @@
     if (!is_array($spuntati)) {
         $spuntati = [$spuntati];
     }
-    $idAula = $_GET['id'] ?? null;
-    $codiceInventario = $_GET['codice_inventario'] ?? null;
-    $spuntati = $_GET['spuntato'] ?? [];
-    if (!is_array($spuntati)) {
-        $spuntati = [$spuntati];
-    }
-
-    $messaggio = "";
 
     if (!$idAula || !$codiceInventario) {
         die("Parametri mancanti.");
     }
-    if (!$idAula || !$codiceInventario) {
-        die("Dati mancanti.");
-    }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $codiceDotazione = trim($_POST['codice_dotazione'] ?? '');
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $codiceDotazione = $_POST['codice_dotazione'] ?? '';
 
         if ($codiceDotazione) {
             // Verifica se esiste
             $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = ?");
             $stmt->execute([$codiceDotazione]);
             $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($codiceDotazione) {
-            $stmt = $conn->prepare("SELECT 1 FROM riga_inventario WHERE codice_inventario = ? AND codice_dotazione = ?");
-            $stmt->execute([$codiceInventario, $codiceDotazione]);
-            $giaPresente = $stmt->fetchColumn();
-
-            if ($giaPresente) {
-                $spuntati[] = $codiceDotazione;
-            } else {
-                $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = ?");
-                $stmt->execute([$codiceDotazione]);
-                $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($dotazione) {
-                // Verifica se è già in riga_inventario
-                $stmt = $conn->prepare("SELECT 1 FROM riga_inventario WHERE codice_dotazione = ? AND codice_inventario = ?");
-                $stmt->execute([$codiceDotazione, $codiceInventario]);
-                $giaInserita = $stmt->fetchColumn();
-
-                if (!$giaInserita) {
-                    // Inserisci in riga_inventario
-                    $stmt = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-                    $stmt->execute([$codiceDotazione, $codiceInventario]);
-                if ($dotazione) {
-                    $stmt = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-                    $stmt->execute([$codiceDotazione, $codiceInventario]);
-
-                    // Aggiorna aula della dotazione
-                    $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = ? WHERE codice = ?");
-                    $stmt->execute([$idAula, $codiceDotazione]);
-                }
-
-                // Aggiungi ai codici spuntati per mostrarlo
+                // Aggiunge ai codici spuntati per mostrarlo
                 if (!in_array($codiceDotazione, $spuntati)) {
                     $spuntati[] = $codiceDotazione;
                 }
-            }
-        }
-                    $stmt = $conn->prepare("UPDATE dotazione SET ID_Aula = ? WHERE codice = ?");
-                    $stmt->execute([$idAula, $codiceDotazione]);
-
-                    $spuntati[] = $dotazione["nome"];
-                } else {
-                    $messaggio = "Codice dotazione non trovato.";
-                }
-            }
-
-        // Redirect a nuovo_inventario.php
-        $query = http_build_query([
-            'id' => $idAula,
-            'codice_inventario' => $codiceInventario,
-            'spuntato' => $spuntati
-        ]);
-        header("Location: nuovo_inventario.php?$query");
-        exit;
-    }
-            if (empty($messaggio)) {
-                $query = http_build_query([
-                    'id' => $idAula,
-                    'codice_inventario' => $codiceInventario,
-                    'spuntato' => $spuntati
-                ]);
-                header("Location: scan.php?$query");
-                exit;
+            }else {
+                $errore = "Codice dotazione non trovato.";
             }
         }
     }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="it">
@@ -197,22 +117,11 @@
                 <div class="info" class="hint" style="margin-top: 10px;">
                     Puoi inserire manualmente il codice o usare la fotocamera per scansionare il QR code.
                 </div>
-                <?php if ($messaggio): ?>
-                    <div class="error"><?php echo $messaggio ?></div>
+                <?php if ($errore): ?>
+                    <div class="error-code"><i class="fas fa-exclamation-circle"></i><?php echo $errore ?></div>
                 <?php endif; ?>
             </div>
-
-            <?php if (!empty($spuntati)): ?>
-                <div class="dotazioni-list">
-                    <h3>Dotazioni scansionate:</h3>
-                    <ul>
-                        <?php foreach ($spuntati as $codice): ?>
-                            <li><i class="fa fa-check-circle" style="color:green"></i> <?php echo $codice?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
+            
             <div class="actions-bar">
                 <a href="nuovo_inventario.php?<?= http_build_query([
                     'id' => $idAula,
