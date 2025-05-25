@@ -36,6 +36,7 @@ input[type="text"]:focus {
     background: #f5f8fa;
     border: 1px solid #e0e6ed;
     border-radius: 8px;
+    width: 94%;
     padding: 14px 20px;
     margin-bottom: 14px;
     transition: box-shadow 0.2s;
@@ -52,4 +53,10 @@ input[type="text"]:focus {
     border-radius: 8px;
     padding: 14px 18px;
     margin-bottom: 18px;
+}
+.container::-webkit-scrollbar{
+    display: none;
+}
+.content::-webkit-scrollbar{
+    display: none;
 }

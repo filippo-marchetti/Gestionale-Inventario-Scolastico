@@ -134,16 +134,16 @@
                 <?php endif; ?>
             </div>
             
-<div class="actions-bar">
-    <form method="get" action="nuovo_inventario.php" style="display:inline;">
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($idAula); ?>">
-        <input type="hidden" name="codice_inventario" value="<?php echo htmlspecialchars($codiceInventario); ?>">
-        <?php foreach ($spuntati as $val): ?>
-            <input type="hidden" name="spuntato[]" value="<?php echo htmlspecialchars($val); ?>">
-        <?php endforeach; ?>
-        <button type="submit" class="btn-back"><i class="fa fa-arrow-left"></i> Torna all'inventario</button>
-    </form>
-</div>
+            <div class="actions-bar">
+                <form method="get" action="javascript:history.back();" style="display:inline;">
+                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($idAula); ?>">
+                    <input type="hidden" name="codice_inventario" value="<?php echo htmlspecialchars($codiceInventario); ?>">
+                    <?php foreach ($spuntati as $val): ?>
+                        <input type="hidden" name="spuntato[]" value="<?php echo htmlspecialchars($val); ?>">
+                    <?php endforeach; ?>
+                    <button type="submit" class="btn-back"><i class="fa fa-arrow-left"></i> Torna all'inventario</button>
+                </form>
+            </div>
         </div>
     </div>
         <script>
