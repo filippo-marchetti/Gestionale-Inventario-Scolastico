@@ -36,7 +36,7 @@
         try {
             // Query per recuperare gli inventari associati all'aula, con join sulla tabella scuola per il nome scuola
             $stmt = $conn->prepare("
-                SELECT i.codice_inventario, i.data_inventario, i.descrizione, s.nome AS nome_scuola
+                SELECT i.codice_inventario, i.data_inventario, i.descrizione,ID_tecnico, s.nome AS nome_scuola
                 FROM inventario i
                 LEFT JOIN scuola s ON i.scuola_appartenenza = s.codice_meccanografico
                 WHERE i.ID_Aula = ?
@@ -152,7 +152,7 @@
                                     echo "<td>".$inv['codice_inventario']."</td>";
                                     echo "<td>".$inv['data_inventario']."</td>";
                                     echo "<td>".$inv['descrizione']."</td>";
-                                    echo "<td>".$inv['nome_scuola']."</td>";
+                                    echo "<td>".$inv['ID_tecnico']."</td>";
                                     echo "<td>".$numDot."</td>";
                             ?>
                                 <td>
