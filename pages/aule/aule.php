@@ -123,14 +123,23 @@
                     </thead>
                 <tbody>
                         <?php foreach ($aule as $aula): 
+                            $stmt = $conn->prepare("SELECT ID_aula FROM inventario");
+                            $controlloMagazzino = $stmt->fetchColumn();
+                            if($controlloMagazzino != "magazzino"){
+                                //Numero dotazioni
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE ID_aula = ?");
+                                $stmt->execute([$aula['ID_aula']]);
+                                $numDot = $stmt->fetchColumn();
+                            }else{
+                                //Numero dotazioni
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE stato = 'archiviato'");
+                                $stmt->execute([$aula['ID_aula']]);
+                                $numDot = $stmt->fetchColumn();
+                            }
                             //Numero inventari
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM inventario WHERE ID_aula = ? ");
                             $stmt->execute([$aula['ID_aula']]);
                             $numInv = $stmt->fetchColumn();
-                            //Numero dotazioni
-                            $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE ID_aula = ?");
-                            $stmt->execute([$aula['ID_aula']]);
-                            $numDot = $stmt->fetchColumn();
                             echo "<tr>";
                             echo "<td>".$aula['ID_aula']."</td>";
                             echo "<td>".$aula['tipologia']."</td>";

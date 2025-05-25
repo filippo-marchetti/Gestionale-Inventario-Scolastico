@@ -81,7 +81,8 @@ if (isset($_POST["login"]) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Inserimento nel database
                 $stmt = $conn->prepare("INSERT INTO utente (username, nome, cognome, email, password, stato, scuola_appartenenza) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$username, $nome, $cognome, $email, $password, 'attesa', $cod_scuola['codice_meccanografico']]);
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                $stmt->execute([$username, $nome, $cognome, $email, $hashedPassword, 'attesa', $cod_scuola['codice_meccanografico']]);
             } else {
                 $errors['confermaPassword'] = "Le password sono diverse";
             }
