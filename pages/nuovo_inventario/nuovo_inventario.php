@@ -2,6 +2,7 @@
     session_start();
 
     $role = $_SESSION['role'];
+    $username = $_SESSION['username'];
 
     $host = 'localhost';
     $db = 'inventariosdarzo';
@@ -98,11 +99,31 @@
         }
 
         if (empty($errors)) {
+
+            if($_SESSION["role"] == "admin"){
+                $stmt = $conn->prepare("
+                    SELECT scuola_appartenenza
+                    FROM admin 
+                    WHERE username = ?
+                ");
+                $stmt->execute([$username]);
+                $scuola = $stmt->fetchColumn();
+            }else if($_SESSION["role"] == "user"){
+                $stmt = $conn->prepare("
+                    SELECT scuola_appartenenza
+                    FROM utente 
+                    WHERE username = ?
+                ");
+                $stmt->execute([$username]);
+                $scuola = $stmt->fetchColumn();
+            }
+            var_dump($scuola);
+
             $stmt = $conn->prepare("
                 INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
-                VALUES (?, NOW(), ?, ?, NULL, '')
+                VALUES (?, NOW(), ?, ?, ?, ?)
             ");
-            $stmt->execute([$codiceInventario, $descrizione, $idAula]);
+            $stmt->execute([$codiceInventario, $descrizione, $idAula,$scuola,$username]);
 
             $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
             $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
