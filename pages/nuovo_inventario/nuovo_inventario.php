@@ -51,7 +51,7 @@
 
     $stmt->execute([$idAula]);
     $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // Dotazioni: da ultimo inventario + da scan.php
     $dotazioni = [];
     $codiciPresenti = [];
@@ -157,58 +157,75 @@
                 </div>  
             </div>
             <div class="content">
+
+                <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <!-- Bottone "indietro" -->
+                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <!-- Bottone logout -->
+                    <a class="logout-btn" href="../../logout/logout.php">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+                
                 <h1>Nuovo Inventario - Aula <?php echo $idAula ?></h1>
 
-                <a href="scan.php?<?= http_build_query([
-                    'id' => $idAula,
-                    'codice_inventario' => $codiceInventario,
-                    'spuntato' => $codiciDaSpuntare
-                ]) ?>" class="btn-scan">Scansiona Dotazione</a>
-
-                <?php if (!empty($errors)): ?>
-                    <div class="error">
-                        <ul>
-                            <?php foreach ($errors as $err): ?>
-                                <li><?php echo $err ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
+                <!-- <?php if (!empty($errors)): ?> -->
+                    <!-- <div class="error"> -->
+                        <!-- <ul> -->
+                            <!-- <?php foreach ($errors as $err): ?> -->
+                                <!-- <li><?php echo $err ?></li> -->
+                            <!-- <?php endforeach; ?> -->
+                        <!-- </ul> -->
+                    <!-- </div> -->
+                <!-- <?php endif; ?> -->
 
                 <form method="post">
                     <input type="hidden" name="codice_inventario" value="<?php echo $codiceInventario ?>">
 
                     <label>Codice Inventario:</label>
-                    <input type="text" value="<?php echo $codiceInventario ?>" readonly><br><br>
+                    <input type="text" value="<?php echo $codiceInventario ?>" readonly>
 
                     <label>Descrizione:</label>
-                    <input type="text" name="descrizione" required style="width:100%;"><br><br>
+                    <input type="text" name="descrizione" required>
 
-                    <h3>Dotazioni incluse:</h3>
-                    <?php foreach ($dotazioni as $d): ?>
-                        <?php
-                            $codice = $d['codice'];
-                            $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
-                            $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
-                        ?>
-                        <div class="dotazione">
-                            <label>
-                                <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
-                                    <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
-                                <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
-                            </label><br>
-                            Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
-                            <?php if ($altAula): ?>
-                                <div class="warning">⚠ Attualmente si trova in aula <?php echo $d['aula_corrente'] ?></div>
-                            <?php endif; ?>
-                            <?php if ($aggiuntaDaScan): ?>
-                                <div class="success-scan">Aggiunta tramite scansione</div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-
-                    <br><button type="submit" class="btn">Salva Inventario</button>
+                    
                 </form>
+                
+                <form class="btn-form">
+                    <br><button type="submit" class="btn-scan-save">Salva Inventario</button>
+
+                    <a href="scan.php?<?= http_build_query([
+                        'id' => $idAula,
+                        'codice_inventario' => $codiceInventario,
+                        'spuntato' => $codiciDaSpuntare
+                    ]) ?>" class="btn-scan-save">Scansiona Dotazione</a>
+                </form> 
+            
+                <h3>Dotazioni incluse:</h3>
+                <?php foreach ($dotazioni as $d): ?>
+                    <?php
+                        $codice = $d['codice'];
+                        $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
+                        $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+                    ?>
+                    <div class="dotazione">
+                        <label>
+                            <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
+                                <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
+                            <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
+                        </label><br>
+                        Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
+                        <?php if ($altAula): ?>
+                            <div class="warning">⚠ Attualmente si trova in aula <?php echo $d['aula_corrente'] ?></div>
+                        <?php endif; ?>
+                        <?php if ($aggiuntaDaScan): ?>
+                            <div class="success-scan">Aggiunta tramite scansione</div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+                
             </div>
         </div>
     </body>
