@@ -81,8 +81,7 @@ if (isset($_POST["login"]) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Inserimento nel database
                 $stmt = $conn->prepare("INSERT INTO utente (username, nome, cognome, email, password, stato, scuola_appartenenza) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                $stmt->execute([$username, $nome, $cognome, $email, $hashedPassword, 'attesa', $cod_scuola['codice_meccanografico']]);
+                $stmt->execute([$username, $nome, $cognome, $email, $password, 'attesa', $cod_scuola['codice_meccanografico']]);
             } else {
                 $errors['confermaPassword'] = "Le password sono diverse";
             }
@@ -106,7 +105,7 @@ if (isset($_POST["login"]) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="form">
         <div class="image">
-            <img src="..\assets\images\placeholder.png" width="120px">
+            <img src="..\assets\images\logo_darzo.png" width="120px">
         </div>
         <h1>Registrati</h1>
         <form method="POST">

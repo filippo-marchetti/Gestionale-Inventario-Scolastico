@@ -78,18 +78,18 @@
     <body>
     <div class="container">
         <div class="sidebar">
-            <div class="image"><img src="..\..\assets\images\placeholder.png" width="120px"></div>
+            <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
             <!-- questa div conterrà i link delle schede -->
             <div class="section-container">
                 <br>
                 <?php
                     if($role == 'admin') {
-                        echo '<a href="../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        echo '<a href="../../admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
                     } else {
-                        echo '<a href="../../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
                     }
                 ?>
-                <a href="../../user_page/aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                 <?php
                     if($role == "admin"){
                         echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
@@ -99,9 +99,9 @@
                 ?>
                 <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
                 <a href="..\dotazione_archiviata\dotazione_archiviata.php"><div class="section selected"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                <a href="..\dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
-                <a href="bop.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                <a href="..\dotazione_eliminata\dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                <a href="..\dotazione_mancante\dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
+                <a href="..\impostazioni\impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
             </div>  
         </div>
         <div class="content">

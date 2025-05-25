@@ -63,7 +63,7 @@
     <div class="container"> <!-- Contenitore principale -->
         <div class="sidebar"> <!-- Sidebar di navigazione -->
             <div class="image">
-                <img src="..\..\assets\images\placeholder.png" width="120px"> <!-- Immagine placeholder -->
+                <img src="..\..\assets\images\logo_darzo.png" width="120px"> <!-- Immagine placeholder -->
             </div>
             <div class="section-container"> <!-- Contenitore link sezioni -->
                 <br>
