@@ -38,10 +38,7 @@
             //controllo che le credenziali siano di un admin
             if($user){
                 //verifica della password utente
-                var_dump($user['password']);   // mostra l'hash salvato
-                var_dump($password);           // mostra la password inserita dall'utente
-                var_dump(password_verify($password, $user['password'])); // true o false?
-                if ($user && password_verify($password, $user['password'])) {
+                if (password_verify($password, password_hash($user['password'], PASSWORD_DEFAULT))){
                     //Salvataggio di username e ruolo nella sessione
                     $_SESSION['username'] = $_POST['username'];
                     $_SESSION['role'] = "user";
@@ -57,7 +54,7 @@
                 $admin = $stmt->fetch();
                 
                 //verifica della password admin
-                if ($admin && password_verify($password, $admin['password'])) {
+                if ($admin && password_verify($password, password_hash($admin['password'], PASSWORD_DEFAULT))){
                     //Salvataggio di username e ruolo nella sessione
                     $_SESSION['username'] = $_POST['username'];
                     $_SESSION['role'] = "admin";
