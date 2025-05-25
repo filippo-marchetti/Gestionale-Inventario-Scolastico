@@ -107,6 +107,10 @@
             </div>
             
             <h1>Dotazioni eliminate</h1> <!-- Titolo pagina -->
+
+            <div class="actions">
+                <input type="text" id="filterInput" placeholder="Cerca per nome o codice" class="filter-input">
+            </div>
             
             <div class="lista-dotazioni"> <!-- Tabella lista dotazioni eliminate -->
                 <table>
