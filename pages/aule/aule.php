@@ -15,11 +15,33 @@
             $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+            // Controlla se esiste l'aula magazzino, altrimenti la crea
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM aula WHERE ID_aula = 'magazzino'");
+            $stmt->execute();
+            $magazzinoExists = $stmt->fetchColumn();
+            if ($magazzinoExists == 0) {
+                $stmt = $conn->prepare("INSERT INTO aula (ID_aula, tipologia, descrizione, stato) VALUES ('magazzino', 'magazzino', 'Aula magazzino di sistema', 'attiva')");
+                $stmt->execute();
+            }
+
             // Recupera tutte le aule dalla tabella 'aula'
-            $stmt = $conn->query("SELECT ID_aula, descrizione, tipologia FROM aula");
+            $stmt = $conn->query("SELECT ID_aula, descrizione, tipologia FROM aula WHERE stato = 'attiva'");
             $aule = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             die("Errore nella connessione o nella query: " . $e->getMessage());
+        }
+
+        if(isset($_POST["scarta"])){
+            // Impedisci l'eliminazione dell'aula magazzino
+            if ($_POST['scarta'] !== 'magazzino') {
+                $stmt = $conn->prepare("UPDATE aula SET stato = 'eliminata' WHERE ID_aula = :ID_aula");
+                $stmt->bindParam(':ID_aula', $_POST['scarta']);
+                $stmt->execute();
+
+                $stmt = $conn->prepare("UPDATE dotazione SET stato = 'archiviato' WHERE ID_aula = :ID_aula");
+                $stmt->bindParam(':ID_aula', $_POST['scarta']);
+                $stmt->execute();
+            }
         }
     } else {
         header("Location: ..\..\logout\logout.php");
@@ -102,7 +124,7 @@
                 <tbody>
                         <?php foreach ($aule as $aula): 
                             //Numero inventari
-                            $stmt = $conn->prepare("SELECT COUNT(*) FROM inventario WHERE ID_aula = ?");
+                            $stmt = $conn->prepare("SELECT COUNT(*) FROM inventario WHERE ID_aula = ? ");
                             $stmt->execute([$aula['ID_aula']]);
                             $numInv = $stmt->fetchColumn();
                             //Numero dotazioni
@@ -126,6 +148,13 @@
                                         <i class="fas fa-qrcode"></i>
                                     </button>
                                 </a>
+                                <?php if($aula['ID_aula'] !== 'magazzino'): ?>
+                                    <form method="POST" style="display:inline;">
+                                        <button name="scarta" value="<?php echo $aula['ID_aula']?>" class="btn-action btn-red">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>

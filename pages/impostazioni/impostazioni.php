@@ -44,6 +44,7 @@
         if (isset($_POST['salva'])) {
             $nuovoUsername = $_POST['username'] ?? '';
             $nuovaPassword = $_POST['password'] ?? '';
+            $confermaPassword = $_POST['conferma_password'] ?? '';
             $vecchioUsername = $userData['username'];
 
             if (empty($nuovoUsername)) {
@@ -61,6 +62,11 @@
 
             if (empty($nuovaPassword)) {
                 $errors['password'] = "La password non può essere vuota.";
+            }
+            if (empty($confermaPassword)) {
+                $errors['conferma_password'] = "Conferma la password.";
+            } elseif ($nuovaPassword !== $confermaPassword) {
+                $errors['conferma_password'] = "Le password non coincidono.";
             }
 
             if (empty($errors)) {
@@ -193,6 +199,13 @@
                             </span>
                             <?php if (isset($errors['password'])): ?>
                                 <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['password'] ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="conferma_password">Conferma Password</label>
+                            <input type="password" name="conferma_password" id="conferma_password" value="<?= isset($_POST['conferma_password']) ? $_POST['conferma_password'] : '' ?>" class="<?= isset($errors['conferma_password']) ? 'input-error' : '' ?>">
+                            <?php if (isset($errors['conferma_password'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['conferma_password'] ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group">
