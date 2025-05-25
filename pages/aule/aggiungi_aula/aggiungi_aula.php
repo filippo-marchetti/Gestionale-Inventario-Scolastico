@@ -26,7 +26,7 @@ if (!is_null($username)) {
     $elencoTipologie = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     if (isset($_POST['salva'])) {
-        // Recupera dati dal form
+    // Recupera dati dal form
         $id_aula = $_POST['codice'] ?? '';
         $tipologia = $_POST['nome'] ?? '';
         $descrizione = $_POST['descrizione'] ?? '';
@@ -37,16 +37,14 @@ if (!is_null($username)) {
         $stmt->execute();
         $idEsiste = $stmt->fetchColumn();
 
-        if ($idEsiste > 0) {
-            $errors["codice"] = "L'ID aula inserito è già presente.";
-        }
-        if (empty($tipologia)) {
-            $errors["nome"] = "La tipologia è obbligatoria.";
-        }
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM aula WHERE ID_aula = :id_aula AND stato = 'eliminata'");
+        $stmt->bindParam(':id_aula', $id_aula, PDO::PARAM_STR);
+        $stmt->execute();
+        $statoEliminato = $stmt->fetchColumn();
 
-        // Inserimento nel database
-        if (empty($errors)) {
-            $stmt = $conn->prepare("INSERT INTO aula (ID_aula, tipologia, descrizione) VALUES (:id_aula, :tipologia, :descrizione)");
+        if ($idEsiste > 0 && $statoEliminato > 0) {
+            // Riattiva l'aula eliminata aggiornando tipologia e descrizione
+            $stmt = $conn->prepare("UPDATE aula SET stato = 'attiva', tipologia = :tipologia, descrizione = :descrizione WHERE ID_aula = :id_aula AND stato = 'eliminata'");
             $stmt->bindParam(':id_aula', $id_aula);
             $stmt->bindParam(':tipologia', $tipologia);
             $stmt->bindParam(':descrizione', $descrizione);
@@ -54,8 +52,25 @@ if (!is_null($username)) {
 
             header("Location: ../aule.php");
             exit;
-        }
-    } else if (isset($_POST['reset'])) {
+    } elseif ($idEsiste > 0 && $statoEliminato == 0) {
+        $errors["codice"] = "L'ID aula inserito è già presente.";
+    }
+    if (empty($tipologia)) {
+        $errors["nome"] = "La tipologia è obbligatoria.";
+    }
+
+    // Inserimento nel database
+    if (empty($errors) && !($idEsiste > 0 && $statoEliminato > 0)) {
+        $stmt = $conn->prepare("INSERT INTO aula (ID_aula, tipologia, descrizione) VALUES (:id_aula, :tipologia, :descrizione)");
+        $stmt->bindParam(':id_aula', $id_aula);
+        $stmt->bindParam(':tipologia', $tipologia);
+        $stmt->bindParam(':descrizione', $descrizione);
+        $stmt->execute();
+
+        header("Location: ../aule.php");
+        exit;
+    }
+} else if (isset($_POST['reset'])) {
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit;
     }
@@ -113,7 +128,7 @@ if (!is_null($username)) {
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
                 <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <!-- Bottone "indietro" -->
-                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                    <a class="back-btn" href="../aule.php;" style="display:inline-block;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <!-- Bottone logout -->
