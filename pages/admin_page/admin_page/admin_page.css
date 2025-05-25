@@ -52,3 +52,12 @@
     vertical-align: middle;
     word-wrap: break-word;
 }
+.grafico {
+    width: 50%;
+    height: 200px;
+    margin: 0 auto;
+}
+#graficoInventari{
+    width: 100% !important;
+    height: 100% !important;
+}

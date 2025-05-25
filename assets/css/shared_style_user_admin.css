@@ -175,7 +175,6 @@ h1{
     cursor: pointer;
     transition: color 0.2s;
 }
-
 .back-btn:hover {
     color: #007bff;
 }

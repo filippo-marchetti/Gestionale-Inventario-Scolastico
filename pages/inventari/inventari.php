@@ -104,8 +104,7 @@
         <!-- Contenuto principale -->
         <div class="content">
             <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <!-- Pulsante "indietro" che usa JS history -->
-                <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                <a class="back-btn" href="../aule/aule.php" style="display:inline-block;">
                     <i class="fas fa-chevron-left"></i>
                 </a>
                 <!-- Pulsante logout che rimanda alla pagina di logout -->
@@ -131,7 +130,7 @@
                         <td>Codice Inventario</td>
                         <td>Data Inventario</td>
                         <td>Descrizione</td>
-                        <td>Scuola di appartenenza</td>
+                        <td>Tecnico Associato</td>
                         <td>Numero Dotazione</td>
                         <td style="text-align: center;">Azioni</td>
                     </thead>
