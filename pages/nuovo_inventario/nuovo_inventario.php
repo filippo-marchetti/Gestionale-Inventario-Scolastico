@@ -25,12 +25,11 @@
         die("ID aula non specificato.");
     }
 
-    // Generazione codice inventario (max 9 caratteri)
+    // Generazione codice inventario
     $iniziale = substr($idAula, 0, 1);
-    $finale = substr($idAula, -1, 1);
-    $data = date('dmY'); // es: 20052025
+    $finale = substr($idAula, -1, 1); //offset -1 restituisce l'ultima posizione
+    $data = date('dmy');
     $codiceInventario = strtoupper($iniziale . $finale . $data);
-    $codiceInventario = substr($codiceInventario, 0, 9);
 
     // Assicura codice univoco
     $stmt = $conn->prepare("SELECT 1 FROM inventario WHERE codice_inventario = ?");
@@ -41,7 +40,7 @@
         $codiceInventario = substr($codiceInventario, 0, 9);
     }
 
-    // Recupera ultimo inventario in ordine cronologico reale (con DATETIME)
+    // Recupera ultimo inventario in ordine cronologico
     $stmt = $conn->prepare("
         SELECT codice_inventario
         FROM inventario
@@ -49,9 +48,10 @@
         ORDER BY data_inventario DESC
         LIMIT 1
     ");
+
     $stmt->execute([$idAula]);
     $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
     // Dotazioni: da ultimo inventario + da scan.php
     $dotazioni = [];
     $codiciPresenti = [];
@@ -113,103 +113,103 @@
         header("Location: inventari.php?id=" . urlencode($idAula));
         exit;
     }
-}
+    }
 ?>
 
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Nuovo Inventario</title>
-    <link rel="stylesheet" href="..\..\assets\css\background.css">
-    <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-    <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
-    <link rel="stylesheet" href="nuovo_inventario.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <div class="sidebar">
-            <div class="image"><img src="..\..\assets\images\placeholder.png" width="120px"></div>
-            <!-- questa div conterrà i link delle schede -->
-            <div class="section-container">
-                <br>
-                <?php
-                    if($role == 'admin') {
-                        echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                    } else {
-                        echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                    }
-                ?>
-                <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                <?php
-                    if($role == "admin"){
-                        echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                        echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
-                        echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
-                    };
-                ?>
-                <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
-                <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>      
-            </div>  
-        </div>
-        <div class="content">
-            <h1>Nuovo Inventario - Aula <?= htmlspecialchars($idAula) ?></h1>
-
-            <a href="scan.php?<?= http_build_query([
-                'id' => $idAula,
-                'codice_inventario' => $codiceInventario,
-                'spuntato' => $codiciDaSpuntare
-            ]) ?>" class="btn-scan">Scansiona Dotazione</a>
-
-            <?php if (!empty($errors)): ?>
-                <div class="error">
-                    <ul>
-                        <?php foreach ($errors as $err): ?>
-                            <li><?= htmlspecialchars($err) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <form method="post">
-                <input type="hidden" name="codice_inventario" value="<?= htmlspecialchars($codiceInventario) ?>">
-
-                <label>Codice Inventario:</label>
-                <input type="text" value="<?= htmlspecialchars($codiceInventario) ?>" readonly><br><br>
-
-                <label>Descrizione:</label>
-                <input type="text" name="descrizione" required style="width:100%;"><br><br>
-
-                <h3>Dotazioni incluse:</h3>
-                <?php foreach ($dotazioni as $d): ?>
+    <head>
+        <meta charset="UTF-8">
+        <title>Nuovo Inventario</title>
+        <link rel="stylesheet" href="..\..\assets\css\background.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+        <link rel="stylesheet" href="nuovo_inventario.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="sidebar">
+                <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
+                <!-- questa div conterrà i link delle schede -->
+                <div class="section-container">
+                    <br>
                     <?php
-                        $codice = $d['codice'];
-                        $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
-                        $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+                        if($role == 'admin') {
+                            echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        } else {
+                            echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        }
                     ?>
-                    <div class="dotazione">
-                        <label>
-                            <input type="checkbox" name="dotazione_presente[]" value="<?= htmlspecialchars($codice) ?>"
-                                <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
-                            <strong><?= htmlspecialchars($d['nome']) ?></strong> (<?= htmlspecialchars($d['categoria']) ?>)
-                        </label><br>
-                        Codice: <?= htmlspecialchars($codice) ?> | Stato: <?= htmlspecialchars($d['stato']) ?>
-                        <?php if ($altAula): ?>
-                            <div class="warning">⚠ Attualmente si trova in aula <?= htmlspecialchars($d['aula_corrente']) ?></div>
-                        <?php endif; ?>
-                        <?php if ($aggiuntaDaScan): ?>
-                            <div class="success-scan">✅ Aggiunta tramite scansione</div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
+                    <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <?php
+                        if($role == "admin"){
+                            echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                        };
+                    ?>
+                    <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
+                    <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>      
+                </div>  
+            </div>
+            <div class="content">
+                <h1>Nuovo Inventario - Aula <?php echo $idAula ?></h1>
 
-                <br><button type="submit" class="btn">Salva Inventario</button>
-            </form>
+                <a href="scan.php?<?= http_build_query([
+                    'id' => $idAula,
+                    'codice_inventario' => $codiceInventario,
+                    'spuntato' => $codiciDaSpuntare
+                ]) ?>" class="btn-scan">Scansiona Dotazione</a>
+
+                <?php if (!empty($errors)): ?>
+                    <div class="error">
+                        <ul>
+                            <?php foreach ($errors as $err): ?>
+                                <li><?php echo $err ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post">
+                    <input type="hidden" name="codice_inventario" value="<?php echo $codiceInventario ?>">
+
+                    <label>Codice Inventario:</label>
+                    <input type="text" value="<?php echo $codiceInventario ?>" readonly><br><br>
+
+                    <label>Descrizione:</label>
+                    <input type="text" name="descrizione" required style="width:100%;"><br><br>
+
+                    <h3>Dotazioni incluse:</h3>
+                    <?php foreach ($dotazioni as $d): ?>
+                        <?php
+                            $codice = $d['codice'];
+                            $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
+                            $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+                        ?>
+                        <div class="dotazione">
+                            <label>
+                                <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
+                                    <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
+                                <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
+                            </label><br>
+                            Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
+                            <?php if ($altAula): ?>
+                                <div class="warning">⚠ Attualmente si trova in aula <?php echo $d['aula_corrente'] ?></div>
+                            <?php endif; ?>
+                            <?php if ($aggiuntaDaScan): ?>
+                                <div class="success-scan">Aggiunta tramite scansione</div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <br><button type="submit" class="btn">Salva Inventario</button>
+                </form>
+            </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>
