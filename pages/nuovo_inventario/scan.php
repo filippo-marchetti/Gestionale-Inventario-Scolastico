@@ -133,7 +133,6 @@
                     <div class="error-code"><i class="fas fa-exclamation-circle"></i><?php echo $errore ?></div>
                 <?php endif; ?>
             </div>
-            
             <div class="actions-bar">
                 <form method="get" action="javascript:history.back();" style="display:inline;">
                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($idAula); ?>">
