@@ -142,7 +142,7 @@ if (!is_null($username) && $role === "admin" || $role == "user") {
         <div class="container">
             <!-- Sidebar di navigazione -->
             <div class="sidebar">
-                <div class="image"><img src="..\..\..\assets\images\placeholder.png" width="120px" /></div>
+                <div class="image"><img src="..\..\..\assets\images\logo_darzo.png" width="120px" /></div>
                 <div class="section-container">
                     <br />
                     <?php

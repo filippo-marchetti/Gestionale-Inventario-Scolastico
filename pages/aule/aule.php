@@ -66,7 +66,7 @@
     <div class="container">
         <!-- sidebar -->
         <div class="sidebar">
-                <div class="image"><img src="..\..\assets\images\placeholder.png" width="120px"></div>
+                <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
                 <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>

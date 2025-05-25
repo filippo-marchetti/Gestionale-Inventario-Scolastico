@@ -63,7 +63,7 @@
         <!-- Sidebar laterale di navigazione -->
         <div class="sidebar">
             <div class="image">
-                <img src="..\..\assets\images\placeholder.png" width="120px"> <!-- Immagine logo o placeholder -->
+                <img src="..\..\assets\images\logo_darzo.png" width="120px"> <!-- Immagine logo o placeholder -->
             </div>
 
             <!-- Contenitore dei link di navigazione -->

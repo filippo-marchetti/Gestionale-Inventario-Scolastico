@@ -87,7 +87,7 @@
     <body>
         <div class="container">
             <div class="sidebar">
-                <div class="image"><img src="..\..\..\assets\images\placeholder.png" width="120px"></div>
+                <div class="image"><img src="..\..\..\assets\images\logo_darzo.png" width="120px"></div>
                 <div class="section-container"><br>
                     <a href="admin_page.php"><div class="section selected"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>
                     <a href="../../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
