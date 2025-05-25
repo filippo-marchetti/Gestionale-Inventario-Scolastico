@@ -51,7 +51,7 @@
 
     $stmt->execute([$idAula]);
     $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
     // Dotazioni: da ultimo inventario + da scan.php
     $dotazioni = [];
     $codiciPresenti = [];
@@ -115,6 +115,7 @@
     }
     }
 ?>
+     
 
 <!DOCTYPE html>
 <html lang="it">
