@@ -48,6 +48,17 @@
                 $errore = "Codice dotazione non trovato.";
             }
         }
+
+        // Redirect a nuovo_inventario.php
+        if (empty($errore)) {
+            $query = http_build_query([
+                'id' => $idAula,
+                'codice_inventario' => $codiceInventario,
+                'spuntato' => $spuntati
+            ]);
+            header("Location: nuovo_inventario.php?$query");
+            exit;
+        }
     }
 ?>
 

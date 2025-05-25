@@ -2,7 +2,6 @@
     box-sizing: border-box;
 }
 .form-container {
-    background-color: rgb(255, 255, 255);
     height: 80%;
     margin-top: 20px;
     max-width: 50vw;
