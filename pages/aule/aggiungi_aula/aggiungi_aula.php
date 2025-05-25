@@ -128,7 +128,7 @@ if (!is_null($username)) {
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
                 <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <!-- Bottone "indietro" -->
-                    <a class="back-btn" href="../aule.php;" style="display:inline-block;">
+                    <a class="back-btn" href="../../aule/aule.php;" style="display:inline-block;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <!-- Bottone logout -->
