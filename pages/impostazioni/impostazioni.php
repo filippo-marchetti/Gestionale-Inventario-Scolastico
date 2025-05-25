@@ -1,32 +1,27 @@
 <?php
     session_start();
 
-    // Informazioni per la connessione al database
+    // Info database
     $host = 'localhost';
     $db = 'inventariosdarzo';
     $user = 'root';
     $pass = '';
 
-    // Recupera username e ruolo dalla sessione (se settati)
     $username = $_SESSION['username'] ?? null;
     $role = $_SESSION['role'] ?? null;
 
-    // Inizializza array errori e messaggio di successo
     $errors = [];
     $success = '';
 
-    // Se l'utente è loggato (username presente)
     if (!is_null($username)) {
         try {
-            // Connessione al database con PDO
             $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            // In caso di errore nella connessione, termina lo script con messaggio
             die("Connessione fallita: " . $e->getMessage());
         }
 
-        // Determina la tabella da usare in base al ruolo dell'utente
+        // Determina tabella e chiave primaria in base al ruolo
         if ($role === 'admin') {
             $table = 'admin';
             $pk = 'username';
@@ -35,31 +30,27 @@
             $pk = 'username';
         }
 
-        // Recupera i dati dell'utente/admin dal database
+        // Recupera dati utente/admin
         $stmt = $conn->prepare("SELECT * FROM $table WHERE $pk = :username");
         $stmt->bindParam(':username', $username, PDO::PARAM_STR);
         $stmt->execute();
         $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Se l'utente non esiste più nel DB, forza il logout
         if (!$userData) {
             header("Location: ../logout/logout.php");
             exit;
         }
 
-        // Se il form è stato inviato per salvare le modifiche
         if (isset($_POST['salva'])) {
-            // Recupera i dati inviati dal form
             $nuovoUsername = $_POST['username'] ?? '';
             $nuovaPassword = $_POST['password'] ?? '';
             $confermaPassword = $_POST['conferma_password'] ?? '';
             $vecchioUsername = $userData['username'];
 
-            // Validazione username: non vuoto e non già usato da altri utenti
             if (empty($nuovoUsername)) {
                 $errors['username'] = "Lo username non può essere vuoto.";
             } else {
-                // Controlla se esiste un altro utente con lo stesso username
+                // Controlla se username già esistente (diverso dal proprio)
                 $stmt = $conn->prepare("SELECT COUNT(*) FROM $table WHERE username = :username AND username != :oldusername");
                 $stmt->bindParam(':username', $nuovoUsername, PDO::PARAM_STR);
                 $stmt->bindParam(':oldusername', $vecchioUsername, PDO::PARAM_STR);
@@ -69,7 +60,6 @@
                 }
             }
 
-            // Validazione password: non vuota e corrispondenza con la conferma
             if (empty($nuovaPassword)) {
                 $errors['password'] = "La password non può essere vuota.";
             }
@@ -79,19 +69,19 @@
                 $errors['conferma_password'] = "Le password non coincidono.";
             }
 
-            // Se non ci sono errori, aggiorna i dati nel database
             if (empty($errors)) {
+                // Aggiorna username e password
                 $stmt = $conn->prepare("UPDATE $table SET username = :newusername, password = :newpassword WHERE $pk = :oldusername");
                 $stmt->bindParam(':newusername', $nuovoUsername);
                 $stmt->bindParam(':newpassword', $nuovaPassword);
                 $stmt->bindParam(':oldusername', $vecchioUsername);
                 $stmt->execute();
 
-                // Aggiorna la sessione con il nuovo username se modificato
+                // Aggiorna la sessione se lo username è cambiato
                 $_SESSION['username'] = $nuovoUsername;
                 $success = "Modifiche salvate con successo.";
 
-                // Ricarica i dati aggiornati da mostrare nel form
+                // Aggiorna i dati visualizzati
                 $stmt = $conn->prepare("SELECT * FROM $table WHERE $pk = :username");
                 $stmt->bindParam(':username', $nuovoUsername, PDO::PARAM_STR);
                 $stmt->execute();
@@ -99,7 +89,6 @@
             }
         }
     } else {
-        // Se l'utente non è loggato, reindirizza al logout (per sicurezza)
         header("Location: ../../logout/logout.php");
         exit;
     }
@@ -109,16 +98,14 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- CSS di base e stili condivisi -->
         <link rel="stylesheet" href="..\..\assets\css\background.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
         <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
         <link rel="stylesheet" href="impostazioni.css">
         <title>Impostazioni</title>
-        <!-- Font Awesome per icone -->
+        <!-- Font Awesome per icone-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <script>
-        // Funzione per mostrare/nascondere la password cliccando sull'icona
         function togglePassword() {
             var pwd = document.getElementById('password');
             var eye = document.getElementById('toggleEye');
@@ -136,40 +123,35 @@
     </head>
     <body>
         <div class="container">
-            <!-- Sidebar con menu di navigazione -->
+            <!-- sidebar -->
             <div class="sidebar">
                 <div class="image"><img src="..\..\assets\images\placeholder.png" width="120px"></div>
                 <div class="section-container">
                     <br>
                 <?php
-                    // Link a homepage diversa per admin o utente
-                    if($role == 'admin') {
-                        echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                    } else {
-                        echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                    }
-                ?>
-                <!-- Link standard per tutti -->
-                <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                <?php
-                    // Link aggiuntivi riservati ad admin
-                    if($role == "admin"){
-                        echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                        echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
-                        echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
-                    };
-                ?>
-                <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                <a href="../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
-                <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+                        if($role == 'admin') {
+                            echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        } else {
+                            echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                        }
+                    ?>
+                    <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <?php
+                        if($role == "admin"){
+                            echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                            echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                            echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                        };
+                    ?>
+                    <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                    <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                    <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                    <a href="../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
+                    <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
                 </div>  
             </div>
-
-            <!-- Contenuto principale -->
+            <!-- content -->
             <div class="content">
-                <!-- Barra superiore con pulsante indietro e logout -->
                 <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <!-- Bottone "indietro" -->
                     <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
@@ -184,39 +166,52 @@
                 <h1>Impostazioni Account</h1>
 
                 <div class="form-container">
-                    <!-- Form di modifica dati account -->
-                    <form action="" method="post">
-                        <label for="username">Username:</label><br>
-                        <input type="text" id="username" name="username" value="<?= htmlspecialchars($userData['username']) ?>"><br>
-                        <!-- Mostra errore username se presente -->
-                        <?php if (isset($errors['username'])): ?>
-                            <div class="error"><?= htmlspecialchars($errors['username']) ?></div>
-                        <?php endif; ?>
-
-                        <label for="password">Password:</label><br>
-                        <div class="password-container" style="position:relative;">
-                            <input type="password" id="password" name="password" value=""><!-- Non mostrare la password attuale per sicurezza -->
-                            <i class="fas fa-eye" id="toggleEye" onclick="togglePassword()" style="position:absolute; right:10px; top:50%; transform: translateY(-50%); cursor:pointer;"></i>
-                        </div>
-                        <!-- Mostra errore password se presente -->
-                        <?php if (isset($errors['password'])): ?>
-                            <div class="error"><?= htmlspecialchars($errors['password']) ?></div>
-                        <?php endif; ?>
-
-                        <label for="conferma_password">Conferma Password:</label><br>
-                        <input type="password" id="conferma_password" name="conferma_password" value=""><br>
-                        <!-- Mostra errore conferma password se presente -->
-                        <?php if (isset($errors['conferma_password'])): ?>
-                            <div class="error"><?= htmlspecialchars($errors['conferma_password']) ?></div>
-                        <?php endif; ?>
-
-                        <button type="submit" name="salva">Salva</button>
-                    </form>
-
-                    <!-- Messaggio di successo -->
                     <?php if ($success): ?>
-                        <div class="success"><?= htmlspecialchars($success) ?></div>
+                        <div class="success" style="color:green; margin-bottom:10px;">
+                            <i class="fas fa-check-circle"></i> <?php echo $success ?>
+                        </div>
                     <?php endif; ?>
+                    <form action="" method="post">
+                        <div class="form-group">
+                            <label for="nome">Nome</label>
+                            <input type="text" name="nome" value="<?php echo $userData['nome'] ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="cognome">Cognome</label>
+                            <input type="text" name="cognome" value="<?php echo $userData['cognome'] ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" name="email" value="<?php echo $userData['email'] ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" value="<?= isset($_POST['username']) ? $_POST['username'] : $userData['username'] ?>" class="<?= isset($errors['username']) ? 'input-error' : '' ?>">
+                            <?php if (isset($errors['username'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['username'] ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-group" style="position:relative;">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" id="password" value="<?= isset($_POST['password']) ? $_POST['password'] : $userData['password'] ?>" class="<?= isset($errors['password']) ? 'input-error' : '' ?>">
+                            <span style="position:absolute; right:18px; top:38px; cursor:pointer;" onclick="togglePassword()">
+                                <i id="toggleEye" class="fas fa-eye"></i>
+                            </span>
+                            <?php if (isset($errors['password'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['password'] ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="conferma_password">Conferma Password</label>
+                            <input type="password" name="conferma_password" id="conferma_password" value="<?= isset($_POST['conferma_password']) ? $_POST['conferma_password'] : '' ?>" class="<?= isset($errors['conferma_password']) ? 'input-error' : '' ?>">
+                            <?php if (isset($errors['conferma_password'])): ?>
+                                <small class="error"><i class="fas fa-exclamation-circle"></i><?= $errors['conferma_password'] ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-group">
+                            <input class="save" type="submit" name="salva" value="Salva Modifiche">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
