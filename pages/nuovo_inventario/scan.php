@@ -94,6 +94,7 @@
                     if($role == "admin"){
                         echo '<a href="..\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
                         echo '<a href="..\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                        echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
                     };
                 ?>
                 <a href="..\lista_dotazione\lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
@@ -133,13 +134,16 @@
                 <?php endif; ?>
             </div>
             
-            <div class="actions-bar">
-                <a href="nuovo_inventario.php?<?= http_build_query([
-                    'id' => $idAula,
-                    'codice_inventario' => $codiceInventario,
-                    'spuntato' => $spuntati
-                ]) ?>" class="btn-back"><i class="fa fa-arrow-left"></i> Torna all'inventario</a>
-            </div>
+<div class="actions-bar">
+    <form method="get" action="nuovo_inventario.php" style="display:inline;">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($idAula); ?>">
+        <input type="hidden" name="codice_inventario" value="<?php echo htmlspecialchars($codiceInventario); ?>">
+        <?php foreach ($spuntati as $val): ?>
+            <input type="hidden" name="spuntato[]" value="<?php echo htmlspecialchars($val); ?>">
+        <?php endforeach; ?>
+        <button type="submit" class="btn-back"><i class="fa fa-arrow-left"></i> Torna all'inventario</button>
+    </form>
+</div>
         </div>
     </div>
         <script>

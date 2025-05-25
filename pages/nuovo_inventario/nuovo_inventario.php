@@ -1,8 +1,6 @@
 <?php
     session_start(); // Avvia la sessione
 
-    $spuntati = isset($_SESSION['spuntati']) ? $_SESSION['spuntati'] : [];
-
     $role = $_SESSION['role']; // Recupera il ruolo dell'utente (admin o tecnico)
 
     // Dati per la connessione al database
@@ -23,9 +21,9 @@
     $idAula = $_GET['id'] ?? null;
 
     // Recupera i codici delle dotazioni spuntate da scan.php (può essere una stringa o array)
-    $codiciDaSpuntare = $_GET['spuntato'] ?? [];
-    if (!is_array($codiciDaSpuntare)) {
-        $codiciDaSpuntare = [$codiciDaSpuntare]; // Converte in array se necessario
+    $codiciSpuntati = $_GET['spuntato'] ?? [];
+    if (!is_array($codiciSpuntati)) {
+        $codiciSpuntati = [$codiciSpuntati]; // Converte in array se necessario
     }
 
     if (!$idAula) {
@@ -65,11 +63,9 @@
     $stmt->execute([$idAula]);
     $lastInv = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Inizializza dotazioni e array di codici già presenti
-    $dotazioni = [];
-    $codiciPresenti = [];
-
     // Recupera le dotazioni dell'ultimo inventario
+    $dotazioniUltimoInv = [];
+    $codiciUltimoInv = [];
     if ($lastInv) {
         $stmt = $conn->prepare("
             SELECT d.codice, d.nome, d.categoria, d.stato, d.ID_aula AS aula_corrente
@@ -78,12 +74,19 @@
             WHERE ri.codice_inventario = ?
         ");
         $stmt->execute([$lastInv['codice_inventario']]);
-        $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $codiciPresenti = array_column($dotazioni, 'codice');
+        $dotazioniUltimoInv = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $codiciUltimoInv = array_column($dotazioniUltimoInv, 'codice');
     }
 
-    // Aggiunge eventuali nuove dotazioni selezionate tramite scan.php che non erano nel precedente inventario
-    $nuoviCodici = array_diff($codiciDaSpuntare, $codiciPresenti);
+    // Unisci codici: prima quelli dell'ultimo inventario, poi quelli aggiunti tramite scan (che non erano già presenti)
+    $codiciDaMostrare = array_unique(array_merge($codiciUltimoInv, $codiciSpuntati));
+
+    // Ricostruisci l'elenco delle dotazioni da mostrare
+    $dotazioniDaMostrare = [];
+    foreach ($dotazioniUltimoInv as $d) {
+        $dotazioniDaMostrare[$d['codice']] = $d;
+    }
+    $nuoviCodici = array_diff($codiciSpuntati, $codiciUltimoInv);
     if (!empty($nuoviCodici)) {
         $placeholders = implode(',', array_fill(0, count($nuoviCodici), '?'));
         $stmt = $conn->prepare("
@@ -93,7 +96,9 @@
         ");
         $stmt->execute($nuoviCodici);
         $nuoveDotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $dotazioni = array_merge($dotazioni, $nuoveDotazioni);
+        foreach ($nuoveDotazioni as $d) {
+            $dotazioniDaMostrare[$d['codice']] = $d;
+        }
     }
 
     $errors = [];
@@ -124,10 +129,8 @@
                 $stmtUpdate->execute([$idAula, $codice]);
             }
 
-            // Nuovo blocco: imposta "mancante" le dotazioni del vecchio inventario non spuntate
-            $codiciPrecedenti = array_column($dotazioni, 'codice');
-            $codiciMancanti = array_diff($codiciPrecedenti, $spuntati);
-
+            // Imposta "mancante" le dotazioni del vecchio inventario non spuntate
+            $codiciMancanti = array_diff($codiciUltimoInv, $spuntati);
             $stmtManca = $conn->prepare("UPDATE dotazione SET stato = 'mancante' WHERE codice = ?");
             foreach ($codiciMancanti as $codiceMancante) {
                 $stmtManca->execute([$codiceMancante]);
@@ -156,7 +159,6 @@
         <div class="container">
             <div class="sidebar">
                 <div class="image"><img src="..\..\assets\images\logo_darzo.png" width="120px"></div>
-                <!-- questa div conterrà i link delle schede -->
                 <div class="section-container">
                     <br>
                     <?php
@@ -220,21 +222,20 @@
                     <a href="scan.php?<?= http_build_query([
                         'id' => $idAula,
                         'codice_inventario' => $codiceInventario,
-                        'spuntato' => $codiciDaSpuntare
+                        'spuntato' => $codiciSpuntati
                     ]) ?>" class="btn-scan-save">Scansiona Dotazione</a>
                 
-                
                     <h3>Dotazioni incluse:</h3>
-                    <?php foreach ($dotazioni as $d): ?>
+                    <?php foreach ($dotazioniDaMostrare as $d): ?>
                         <?php
                             $codice = $d['codice'];
                             $altAula = ($d['aula_corrente'] && $d['aula_corrente'] !== $idAula);
-                            $aggiuntaDaScan = in_array($codice, $codiciDaSpuntare);
+                            $aggiuntaDaScan = in_array($codice, $nuoviCodici);
                         ?>
                         <div class="dotazione">
                             <label>
                                 <input type="checkbox" name="dotazione_presente[]" value="<?php echo $codice ?>"
-                                    <?= in_array($codice, $codiciDaSpuntare) ? 'checked' : '' ?>>
+                                    <?= in_array($codice, $codiciSpuntati) ? 'checked' : '' ?>>
                                 <strong><?php echo $d['nome'] ?></strong> (<?php echo $d['categoria']?>)
                             </label><br>
                             Codice: <?php echo $codice ?> | Stato: <?php echo $d['stato'] ?>
