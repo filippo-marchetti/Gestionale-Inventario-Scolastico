@@ -1,30 +1,30 @@
 <?php
-session_start();
+    session_start();
 
-$username = $_SESSION['username'];
-$role = $_SESSION['role'];
+    $username = $_SESSION['username'];
+    $role = $_SESSION['role'];
 
-if (!is_null($username)) {
-    // Connessione al database
-    $host = 'localhost';
-    $db = 'inventariosdarzo';
-    $user = 'root';
-    $pass = '';
+    if (!is_null($username)) {
+        // Connessione al database
+        $host = 'localhost';
+        $db = 'inventariosdarzo';
+        $user = 'root';
+        $pass = '';
 
-    try {
-        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
+            $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Recupera tutte le aule dalla tabella 'aula'
-        $stmt = $conn->query("SELECT ID_aula, descrizione, tipologia FROM aula");
-        $aule = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        die("Errore nella connessione o nella query: " . $e->getMessage());
+            // Recupera tutte le aule dalla tabella 'aula'
+            $stmt = $conn->query("SELECT ID_aula, descrizione, tipologia FROM aula");
+            $aule = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Errore nella connessione o nella query: " . $e->getMessage());
+        }
+    } else {
+        header("Location: ..\..\logout\logout.php");
+        exit();
     }
-} else {
-    header("Location: ..\..\logout\logout.php");
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">

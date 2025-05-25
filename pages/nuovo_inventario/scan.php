@@ -1,73 +1,75 @@
 <?php
-session_start();
+    session_start();
 
-$role = $_SESSION['role'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-$host = 'localhost';
-$db = 'inventariosdarzo';
-$user = 'root';
-$pass = '';
+    $host = 'localhost';
+    $db = 'inventariosdarzo';
+    $user = 'root';
+    $pass = '';
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Errore di connessione: " . $e->getMessage());
-}
+    $messaggio = "";
 
-$idAula = $_GET['id'] ?? null;
-$codiceInventario = $_GET['codice_inventario'] ?? null;
-$spuntati = $_GET['spuntato'] ?? [];
-
-if (!is_array($spuntati)) {
-    $spuntati = [$spuntati];
-}
-
-if (!$idAula || !$codiceInventario) {
-    die("Parametri mancanti.");
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $codiceDotazione = trim($_POST['codice_dotazione'] ?? '');
-
-    if ($codiceDotazione) {
-        // Verifica se esiste
-        $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = ?");
-        $stmt->execute([$codiceDotazione]);
-        $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($dotazione) {
-            // Verifica se è già in riga_inventario
-            $stmt = $conn->prepare("SELECT 1 FROM riga_inventario WHERE codice_dotazione = ? AND codice_inventario = ?");
-            $stmt->execute([$codiceDotazione, $codiceInventario]);
-            $giaInserita = $stmt->fetchColumn();
-
-            if (!$giaInserita) {
-                // Inserisci in riga_inventario
-                $stmt = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-                $stmt->execute([$codiceDotazione, $codiceInventario]);
-
-                // Aggiorna aula della dotazione
-                $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = ? WHERE codice = ?");
-                $stmt->execute([$idAula, $codiceDotazione]);
-            }
-
-            // Aggiungi ai codici spuntati per mostrarlo
-            if (!in_array($codiceDotazione, $spuntati)) {
-                $spuntati[] = $codiceDotazione;
-            }
-        }
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("Errore di connessione: " . $e->getMessage());
     }
 
-    // Redirect a nuovo_inventario.php
-    $query = http_build_query([
-        'id' => $idAula,
-        'codice_inventario' => $codiceInventario,
-        'spuntato' => $spuntati
-    ]);
-    header("Location: nuovo_inventario.php?$query");
-    exit;
-}
+    $idAula = $_GET['id'] ?? null;
+    $codiceInventario = $_GET['codice_inventario'] ?? null;
+    $spuntati = $_GET['spuntato'] ?? [];
+
+    if (!is_array($spuntati)) {
+        $spuntati = [$spuntati];
+    }
+
+    if (!$idAula || !$codiceInventario) {
+        die("Parametri mancanti.");
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $codiceDotazione = trim($_POST['codice_dotazione'] ?? '');
+
+        if ($codiceDotazione) {
+            // Verifica se esiste
+            $stmt = $conn->prepare("SELECT * FROM dotazione WHERE codice = ?");
+            $stmt->execute([$codiceDotazione]);
+            $dotazione = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($dotazione) {
+                // Verifica se è già in riga_inventario
+                $stmt = $conn->prepare("SELECT 1 FROM riga_inventario WHERE codice_dotazione = ? AND codice_inventario = ?");
+                $stmt->execute([$codiceDotazione, $codiceInventario]);
+                $giaInserita = $stmt->fetchColumn();
+
+                if (!$giaInserita) {
+                    // Inserisci in riga_inventario
+                    $stmt = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
+                    $stmt->execute([$codiceDotazione, $codiceInventario]);
+
+                    // Aggiorna aula della dotazione
+                    $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = ? WHERE codice = ?");
+                    $stmt->execute([$idAula, $codiceDotazione]);
+                }
+
+                // Aggiungi ai codici spuntati per mostrarlo
+                if (!in_array($codiceDotazione, $spuntati)) {
+                    $spuntati[] = $codiceDotazione;
+                }
+            }
+        }
+
+        // Redirect a nuovo_inventario.php
+        $query = http_build_query([
+            'id' => $idAula,
+            'codice_inventario' => $codiceInventario,
+            'spuntato' => $spuntati
+        ]);
+        header("Location: nuovo_inventario.php?$query");
+        exit;
+    }
 ?>
 
 <!DOCTYPE html>

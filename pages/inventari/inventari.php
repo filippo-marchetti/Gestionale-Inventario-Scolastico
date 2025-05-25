@@ -129,22 +129,22 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($inventari as $inv): 
-                                    $stmt = $conn->prepare("SELECT COUNT(*) FROM riga_inventario WHERE codice_inventario = ?");
-                                    $stmt->execute([$inv['codice_inventario']]);
-                                    $numDot = $stmt->fetchColumn();
-                                    echo "<tr>";
-                                        echo "<td>".$inv['codice_inventario']."</td>";
-                                        echo "<td>".$inv['data_inventario']."</td>";
-                                        echo "<td>".$inv['descrizione']."</td>";
-                                        echo "<td>".$inv['nome_scuola']."</td>";
-                                        echo "<td>".$numDot."</td>";
-                                        ?>
-                                    <td>
-                                        <div class="div-action-btn">
-                                            <a href="../dotazioni/dotazioni.php?codice=<?php echo $inv['codice_inventario'] ?>" title="Visualizza dotazioni">
-                                                <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
-                                            </a>
-                                        </div>
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM riga_inventario WHERE codice_inventario = ?");
+                                $stmt->execute([$inv['codice_inventario']]);
+                                $numDot = $stmt->fetchColumn();
+                                echo "<tr>";
+                                    echo "<td>".$inv['codice_inventario']."</td>";
+                                    echo "<td>".$inv['data_inventario']."</td>";
+                                    echo "<td>".$inv['descrizione']."</td>";
+                                    echo "<td>".$inv['nome_scuola']."</td>";
+                                    echo "<td>".$numDot."</td>";
+                                    ?>
+                                <td>
+                                    <div class="div-action-btn">
+                                        <a href="../dotazioni/dotazioni.php?codice=<?php echo $inv['codice_inventario'] ?>" title="Visualizza dotazioni">
+                                            <button class="btn-action btn-green"><i class="fas fa-eye"></i></button>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
