@@ -147,7 +147,7 @@ if (!is_null($username) && $role === "admin" || $role == "user") {
                 <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
                 <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <!-- Bottone "indietro" -->
-                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                    <a class="back-btn" href="../lista_dotazione.php" style="display:inline-block;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <!-- Bottone logout -->

@@ -42,6 +42,24 @@
         ");
         $stmt->execute();
         $inventari_piu_tecnici = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt = $conn->query("SELECT COUNT(*) FROM dotazione");
+
+        $tot_dotazioni = $stmt->fetchColumn();
+
+        $stmt = $conn->query("SELECT COUNT(*) FROM dotazione WHERE stato = 'presente'");
+        $dotazioni_assegnate = $stmt->fetchColumn();
+
+        $stmt = $conn->query("SELECT COUNT(*) FROM dotazione WHERE stato = 'archiviato'");
+        $dotazioni_archiviate = $stmt->fetchColumn();
+
+        $stmt = $conn->query("SELECT COUNT(*) FROM dotazione WHERE stato = 'eliminato'");
+        $dotazioni_eliminate = $stmt->fetchColumn();
+
+        // Calcolo percentuali (evita divisione per zero)
+        $perc_assegnate = $tot_dotazioni > 0 ? round(($dotazioni_assegnate / $tot_dotazioni) * 100) : 0;
+        $perc_archiviate = $tot_dotazioni > 0 ? round(($dotazioni_archiviate / $tot_dotazioni) * 100) : 0;
+        $perc_eliminate = $tot_dotazioni > 0 ? round(($dotazioni_eliminate / $tot_dotazioni) * 100) : 0;
     }else{
         header("Location: ..\..\..\logout\logout.php");
     }
@@ -139,7 +157,11 @@
                 </div>
 
                 <!-- da aggiungere -->
-                 <div class="placeholder"></div>
+                 <div class="placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-size:1.3rem;">
+                    <div><b>Dotazioni assegnate:</b> <?php echo $perc_assegnate; ?>%</div>
+                    <div><b>Dotazioni archiviate:</b> <?php echo $perc_archiviate; ?>%</div>
+                    <div><b>Dotazioni eliminate:</b> <?php echo $perc_eliminate; ?>%</div>
+                </div>
 
                 <!-- task recenti -->
                 <div class="log-container">
