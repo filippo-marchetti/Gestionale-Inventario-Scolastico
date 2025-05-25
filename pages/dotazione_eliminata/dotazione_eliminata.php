@@ -1,141 +1,166 @@
 <?php
-    session_start();
+    session_start(); // Avvia la sessione per gestire variabili utente
 
-    //info database
+    // Informazioni per la connessione al database
     $host = 'localhost';
     $db = 'inventariosdarzo';
     $user = 'root';
     $pass = '';
 
+    // Recupera i dati di sessione: username e ruolo dell'utente
     $username = $_SESSION['username'];
     $role = $_SESSION['role'];
 
+    // Verifica che l'utente sia autenticato (username non nullo)
     if(!is_null($username)){
         try {
-        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Crea la connessione PDO al database
+            $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            // Imposta la modalità di errore PDO su eccezioni
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
+            // Se la connessione fallisce, termina con messaggio di errore
             die("Connessione fallita: " . $e->getMessage());
         }
-        // Dopo aver premuto il tasto di archiviazione alla dotazione viene tolta l'aula e lo stato diventa scartato
+        
+        // Se il form ha inviato il campo "abilita" (pulsante riabilita dotazione premuto)
         if(isset($_POST["abilita"])){
+            // Prepara la query per aggiornare la dotazione indicata
+            // Imposta ID_aula a NULL, stato a 'archiviato' e prezzo_stimato a 0
             $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'archiviato', prezzo_stimato = 0 WHERE codice = :codice");
+            // Associa il parametro :codice al valore inviato nel POST
             $stmt->bindParam(':codice', $_POST['abilita']);
+            // Esegue la query di aggiornamento
             $stmt->execute();
         }
-    }else{
+    } else {
+        // Se non è loggato, reindirizza al logout (o pagina login)
         header("Location: ..\..\logout\logout.php");
     }
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\..\assets\css\background.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_lista_dotazione.css">
-        <link rel="stylesheet" href="lista_dotazione.css">
-        <title>Dotazione Eliminata</title>
-        <!-- Font Awesome per icone-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <script src="..\lista_dotazione\lista_dotazione.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <!-- sidebar -->
-            <div class="sidebar">
-                <div class="image"><img src="..\..\assets\images\placeholder.png" width="120px"></div>
-                <!-- questa div conterrà i link delle schede -->
-                <div class="section-container">
-                    <br>
-                    <?php
-                        if($role == 'admin') {
-                            echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                        } else {
-                            echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
-                        }
-                    ?>
-                    <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
-                    <?php
-                        if($role == "admin"){
-                            echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
-                            echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
-                            echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
-                        };
-                    ?>
-                    <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
-                    <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
-                    <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
-                    <a href="../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
-                    <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
-                </div>  
+<head>
+    <meta charset="UTF-8"> <!-- Setta la codifica dei caratteri -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design -->
+    
+    <!-- Collegamenti ai fogli di stile CSS -->
+    <link rel="stylesheet" href="..\..\assets\css\background.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_lista_dotazione.css">
+    <link rel="stylesheet" href="lista_dotazione.css">
+    
+    <title>Dotazione Eliminata</title> <!-- Titolo della pagina -->
+    
+    <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Script JavaScript per funzionalità lista dotazione -->
+    <script src="..\lista_dotazione\lista_dotazione.js"></script>
+</head>
+<body>
+    <div class="container"> <!-- Contenitore principale -->
+        <div class="sidebar"> <!-- Sidebar di navigazione -->
+            <div class="image">
+                <img src="..\..\assets\images\placeholder.png" width="120px"> <!-- Immagine placeholder -->
             </div>
-            <!-- content contiene tutto ciò che è al di fuori della sidebar -->
-            <div class="content">
-                <!-- user-logout contiene il nome utente dell'utente loggato e il collegamento per il logout -->
-                <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <!-- Bottone "indietro" -->
-                    <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                    <!-- Bottone logout -->
-                    <a class="logout-btn" href="../../logout/logout.php">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                </div>
-                <h1>Dotazioni eliminate</h1>
+            <div class="section-container"> <!-- Contenitore link sezioni -->
+                <br>
+                <?php
+                    // Se ruolo admin, link HOME ad area admin
+                    if($role == 'admin') {
+                        echo '<a href="../admin_page/admin_page/admin_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                    } else {
+                        // Altrimenti link HOME utente normale
+                        echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
+                    }
+                ?>
+                <!-- Link fissi -->
+                <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                <?php
+                    // Solo admin può vedere link aggiuntivi
+                    if($role == "admin"){
+                        echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
+                        echo '<a href="..\admin_page\user_accept\user_accept.php"><div class="section"><span class="section-text"><i class="fas fa-user-check"></i>CONFERMA UTENTI</span></div></a>';
+                        echo '<a href="..\admin_page\nuovo_admin\nuovo_admin.php"><div class="section"><span class="section-text"><i class="fas fa-user-shield"></i>CREA NUOVO ADMIN</span></div></a>';
+                    };
+                ?>
+                <a href="../lista_dotazione/lista_dotazione.php"><div class="section"><span class="section-text"><i class="fas fa-boxes-stacked"></i>DOTAZIONE</span></div></a>
+                <a href="../dotazione_archiviata/dotazione_archiviata.php"><div class="section"><span class="section-text"><i class="fas fa-warehouse"></i>MAGAZZINO</span></div></a>
+                <a href="../dotazione_eliminata/dotazione_eliminata.php"><div class="section"><span class="section-text"><i class="fas fa-trash"></i>STORICO SCARTI</span></div></a>
+                <a href="../dotazione_mancante/dotazione_mancante.php"><div class="section"><span class="section-text"><i class="fas fa-exclamation-triangle"></i>DOTAZIONE MANCANTE</span></div></a>
+                <a href="../impostazioni/impostazioni.php"><div class="section"><span class="section-text"><i class="fas fa-cogs"></i>IMPOSTAZIONI</span></div></a>
+            </div>  
+        </div>
+        
+        <div class="content"> <!-- Contenuto principale -->
+            <div class="logout" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <!-- Pulsante "indietro" usa javascript history -->
+                <a class="back-btn" href="javascript:history.back();" style="display:inline-block;">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <!-- Pulsante logout, porta alla pagina di logout -->
+                <a class="logout-btn" href="../../logout/logout.php">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            
+            <h1>Dotazioni eliminate</h1> <!-- Titolo pagina -->
+            
+            <div class="lista-dotazioni"> <!-- Tabella lista dotazioni eliminate -->
+                <table>
+                    <thead>
+                        <td>Codice</td>
+                        <td>Nome</td>
+                        <td>Categoria</td>
+                        <td>Descrizione</td>
+                        <td>Prezzo Stimato</td>
+                        <td>Aula</td>
+                        <td style="text-align: center;">Azioni</td>
+                    </thead>
+                    <tbody>
+                        <?php
+                            // Esegue query per prendere tutte le dotazioni con ID_aula NULL e stato 'scartato'
+                            $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'scartato'");
+                            // Recupera tutte le righe come array associativo
+                            $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                <div class="lista-dotazioni">
-                    <table>
-                        <thead>
-                            <td>Codice</td>
-                            <td>Nome</td>
-                            <td>Categoria</td>
-                            <td>Descrizione</td>
-                            <td>Prezzo Stimato</td>
-                            <td>Aula</td>
-                            <td style="text-align: center;">Azioni</td>
-                        </thead>
-                        <tbody>
-                            <?php
-                                // Query per recuperare gli account in richiesta
-                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'scartato'");
-                                $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                                foreach ($dotazioni as $dotazione) {  
-                                    echo "<tr>";
-                                        echo "<td>".$dotazione['codice']."</td>";
-                                        echo "<td>".$dotazione['nome']."</td>";
-                                        echo "<td>".$dotazione['categoria']."</td>";
-                                        echo "<td>".$dotazione['descrizione']."</td>";
-                                        echo "<td>".$dotazione['prezzo_stimato']."€</td>";
-                                        echo "<td>".$dotazione['ID_aula']."</td>";
-                                        ?>
-                                            <td>
-                                                <div class="div-action-btn">
-                                                    <!-- reindirizza alla pagina di modifica -->
-                                                    <a href="..\lista_dotazione\modifica_dotazione\modifica_dotazione.php?codice=<?php echo $dotazione['codice']?>&start=archivio">
-                                                        <button name="modifica" class="btn-action btn-green" value="">
-                                                            <i class="fas fa-pen"></i>
-                                                        </button>
-                                                    </a>
-                                                    <form method="POST">
-                                                        <button name="abilita" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
-                                                            <i class="fas fa-undo"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        <?php
-                                    echo "</tr>";
-                                }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
+                            // Cicla ogni dotazione per costruire la riga della tabella
+                            foreach ($dotazioni as $dotazione) {  
+                                echo "<tr>";
+                                    echo "<td>".$dotazione['codice']."</td>"; // Codice dotazione
+                                    echo "<td>".$dotazione['nome']."</td>"; // Nome dotazione
+                                    echo "<td>".$dotazione['categoria']."</td>"; // Categoria
+                                    echo "<td>".$dotazione['descrizione']."</td>"; // Descrizione
+                                    echo "<td>".$dotazione['prezzo_stimato']."€</td>"; // Prezzo stimato con simbolo €
+                                    echo "<td>".$dotazione['ID_aula']."</td>"; // Aula (NULL in questo caso)
+                                    ?>
+                                    <td>
+                                        <div class="div-action-btn">
+                                            <!-- Link alla pagina modifica dotazione, passa codice e parametro start=archivio -->
+                                            <a href="..\lista_dotazione\modifica_dotazione\modifica_dotazione.php?codice=<?php echo $dotazione['codice']?>&start=archivio">
+                                                <button name="modifica" class="btn-action btn-green" value="">
+                                                    <i class="fas fa-pen"></i> <!-- Icona matita per modifica -->
+                                                </button>
+                                            </a>
+                                            <!-- Form per riabilitare la dotazione (aggiorna con POST) -->
+                                            <form method="POST">
+                                                <!-- Pulsante che invia il codice dotazione come valore di "abilita" -->
+                                                <button name="abilita" value="<?php echo $dotazione['codice']?>" class="btn-action btn-red">
+                                                    <i class="fas fa-undo"></i> <!-- Icona freccia undo -->
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <?php
+                                echo "</tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </body>
+    </div>
+</body>
 </html>
