@@ -158,30 +158,8 @@
                         </div>
                     </a>
 
-                    <!-- Card Tecnici attivi -->
-                    <a href="bop.php">
-                        <div class="card card-green">
-                            <div class="card-content">
-                                <i class="fas fa-user-check"></i>
-                                <h3>Tecnici<br>Attivi</h3>
-                            </div>
-                            <span class="card-number"><?php echo $num_tecnici?> tecnici</span>
-                        </div>
-                    </a>
-
-                    <!-- Card Account da attivare -->
-                    <a href="user_accept/user_accept.php">
-                        <div class="card card-orange">
-                            <div class="card-content">
-                                <i class="fas fa-user-clock"></i>
-                                <h3>Attiva<br>Account</h3>
-                            </div>
-                            <span class="card-number"><?php echo $num_account_da_verificare?> account</span>
-                        </div>
-                    </a>
-
                     <!-- Card Dotazioni mancanti -->
-                    <a href="bop.php">
+                    <a href="../dotazione_mancante/dotazione_mancante.php">
                         <div class="card card-red">
                             <div class="card-content">
                                 <i class="fas fa-exclamation-triangle"></i>
