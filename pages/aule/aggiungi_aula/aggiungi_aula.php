@@ -61,14 +61,16 @@ if (!is_null($username)) {
 
     // Inserimento nel database
     if (empty($errors) && !($idEsiste > 0 && $statoEliminato > 0)) {
-        $stmt = $conn->prepare("INSERT INTO aula (ID_aula, tipologia, descrizione) VALUES (:id_aula, :tipologia, :descrizione)");
-        $stmt->bindParam(':id_aula', $id_aula);
-        $stmt->bindParam(':tipologia', $tipologia);
-        $stmt->bindParam(':descrizione', $descrizione);
-        $stmt->execute();
+if (empty($errors) && !($idEsiste > 0 && $statoEliminato > 0)) {
+    $stmt = $conn->prepare("INSERT INTO aula (ID_aula, tipologia, stato, descrizione) VALUES (:id_aula, :tipologia, 'attiva', :descrizione)");
+    $stmt->bindParam(':id_aula', $id_aula);
+    $stmt->bindParam(':tipologia', $tipologia);
+    $stmt->bindParam(':descrizione', $descrizione);
+    $stmt->execute();
 
-        header("Location: ../aule.php");
-        exit;
+    header("Location: ../aule.php");
+    exit;
+}
     }
 } else if (isset($_POST['reset'])) {
         header("Location: " . $_SERVER['REQUEST_URI']);
