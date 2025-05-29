@@ -165,7 +165,22 @@
                             <span class="card-number"><?php echo $num_aule ?> aule</span>
                         </div>
                     </a>
-
+                    <a href="../dotazione_archiviata/dotazione_archiviata.php">
+                        <div class="card card-green">
+                            <div class="card-content">
+                                <i class="fas fa-warehouse"></i>
+                                <h3>Magazzino</h3>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="../impostazioni/impostazioni.php">
+                        <div class="card card-orange">
+                            <div class="card-content">
+                                <i class="fas fa-cogs"></i>
+                                <h3>Impostazioni<br>Account</h3>
+                            </div>
+                        </div>
+                    </a>
                     <!-- Card Dotazioni mancanti -->
                     <a href="../dotazione_mancante/dotazione_mancante.php">
                         <div class="card card-red">
