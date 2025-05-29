@@ -59,13 +59,21 @@
         $mesi = [];   // Array che conterrà i nomi dei mesi da visualizzare nel grafico
         $totali = []; // Array che conterrà i totali degli inventari per ciascun mese
 
-        // Scorre tutti i risultati ottenuti dalla query SQL
+        // Imposta la localizzazione in italiano
+        $formatter = new IntlDateFormatter(
+            'it_IT',
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::NONE,
+            'Europe/Rome',
+            IntlDateFormatter::GREGORIAN,
+            'LLLL yyyy' // formato lungo del mese e anno
+        );
+
         foreach ($inventari_per_mese as $riga) {
-            // Verifica se il mese corrente è tra quelli da mostrare
             if (in_array($riga['mese'], $mesi_da_mostrare)) {
-                $date = DateTime::createFromFormat('Y-m', $riga['mese']); // Converte 'YYYY-MM' in oggetto DateTime
-                $mesi[] = strftime('%B %Y', $date->getTimestamp());  // Aggiunge il nome del mese in italiano 
-                $totali[] = $riga['totale']; // Aggiunge il numero di inventari effettuati in quel mese
+                $date = DateTime::createFromFormat('Y-m', $riga['mese']);
+                $mesi[] = $formatter->format($date);  // nome mese in italiano
+                $totali[] = $riga['totale'];
             }
         }
     } else {
