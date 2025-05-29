@@ -19,6 +19,7 @@
     border-collapse: collapse;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 0.95rem;
+    text-align: center;
     color: #374151;
 }
 /* head e body sono divisi per il diverso stile sul bordo */

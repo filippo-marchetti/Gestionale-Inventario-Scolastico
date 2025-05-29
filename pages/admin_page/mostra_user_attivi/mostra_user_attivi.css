@@ -28,6 +28,7 @@
     border-bottom: 1px solid #e5e7eb;
     vertical-align: middle;
     word-wrap: break-word;
+    text-align: center;
 }
 .user-request tbody td {
     max-width: 300px;
@@ -36,4 +37,5 @@
     border-bottom: 1px dashed #d1d5db;
     vertical-align: middle;
     word-wrap: break-word;
+    text-align: center;
 }
