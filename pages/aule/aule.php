@@ -77,7 +77,7 @@
                             echo '<a href="../user_page/user_page.php"><div class="section"><span class="section-text"><i class="fas fa-home"></i> HOME</span></div></a>';
                         }
                     ?>
-                    <a href="../aule/aule.php"><div class="section"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
+                    <a href="../aule/aule.php"><div class="section selected"><span class="section-text"><i class="fas fa-clipboard-list"></i> INVENTARI</span></div></a>
                     <?php
                         if($role == "admin"){
                             echo '<a href="..\admin_page\mostra_user_attivi\mostra_user_attivi.php"><div class="section"><span class="section-text"><i class="fas fa-user"></i> TECNICI</span></div></a>';
