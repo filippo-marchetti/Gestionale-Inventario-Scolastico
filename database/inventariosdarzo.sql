@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 18, 2025 alle 17:59
+-- Creato il: Mag 29, 2025 alle 22:57
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -32,6 +32,7 @@ CREATE TABLE `admin` (
   `nome` varchar(50) DEFAULT NULL,
   `cognome` varchar(50) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
+  `scuola_appartenenza` varchar(10) NOT NULL,
   `password` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_roman_ci;
 
@@ -39,8 +40,8 @@ CREATE TABLE `admin` (
 -- Dump dei dati per la tabella `admin`
 --
 
-INSERT INTO `admin` (`username`, `nome`, `cognome`, `email`, `password`) VALUES
-('admin', 'admin', 'admin', 'admin@gmail.com', '1234');
+INSERT INTO `admin` (`username`, `nome`, `cognome`, `email`, `scuola_appartenenza`, `password`) VALUES
+('admin', 'admin', 'admin', 'admin@gmail.com', 'REIS00400D', '1234');
 
 -- --------------------------------------------------------
 
@@ -51,6 +52,7 @@ INSERT INTO `admin` (`username`, `nome`, `cognome`, `email`, `password`) VALUES
 CREATE TABLE `aula` (
   `ID_aula` varchar(20) NOT NULL,
   `descrizione` text DEFAULT NULL,
+  `stato` varchar(10) NOT NULL,
   `tipologia` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_roman_ci;
 
@@ -58,11 +60,13 @@ CREATE TABLE `aula` (
 -- Dump dei dati per la tabella `aula`
 --
 
-INSERT INTO `aula` (`ID_aula`, `descrizione`, `tipologia`) VALUES
-('29', 'lo fanno', 'aula'),
-('A7', 'nn', 'Aula'),
-('INFO2', 'whatsapp', 'laboratorio'),
-('INFO4', 'BOP', 'Laboratorio');
+INSERT INTO `aula` (`ID_aula`, `descrizione`, `stato`, `tipologia`) VALUES
+('29', 'aula ', 'attiva', 'aula'),
+('A7', 'aula ', 'attiva', 'Aula'),
+('INFO10', 'laboratorio', 'attiva', 'laboratorio'),
+('INFO2', 'laboratorio', 'attiva', 'laboratorio'),
+('INFO4', 'laboratorio', 'attiva', 'Laboratorio'),
+('magazzino', 'Aula magazzino di sistema', 'attiva', 'magazzino');
 
 -- --------------------------------------------------------
 
@@ -81,8 +85,8 @@ CREATE TABLE `categoria` (
 --
 
 INSERT INTO `categoria` (`ID_categoria`, `descrizione`, `indice_decadimento`) VALUES
-('banco', 'ligma', 0.0000000000),
-('Computer', 'john', 0.0049999999),
+('banco', 'integro', 0.0000000000),
+('Computer', 'integro', 0.0049999999),
 ('proiettore', 'proietta le cose', 0.5000000000);
 
 -- --------------------------------------------------------
@@ -106,12 +110,12 @@ CREATE TABLE `dotazione` (
 --
 
 INSERT INTO `dotazione` (`codice`, `nome`, `categoria`, `descrizione`, `stato`, `prezzo_stimato`, `ID_aula`) VALUES
-('1', 'PC10', 'Computer', 'pc', 'scartato', 50.00, 'INFO4'),
-('12345', 'allah', 'banco', 'allah', 'archiviato', 0.00, NULL),
-('12345678', 'Proiettore5', 'proiettore', 's', 'presente', 50.00, '29'),
-('3', 'banco', 'banco', 'pll', 'archiviato', 0.00, 'INFO4'),
-('4', 'PC12', 'Computer', 'iii', 'scartato', 50.00, 'INFO4'),
-('5', 'PC9', 'Computer', 'fgf', 'archiviato', 0.00, NULL);
+('1', 'PC10', 'Computer', 'pc', 'archiviato', 50.00, 'INFO10'),
+('12345', 'allah', 'banco', 'solido', 'scartato', 0.00, NULL),
+('12345678', 'Proiettore5', 'proiettore', 'funziona bene', 'scartato', 50.00, NULL),
+('3', 'banco', 'banco', 'solido', 'archiviato', 0.00, 'INFO10'),
+('4', 'PC12', 'Computer', 'pc', 'archiviato', 0.00, NULL),
+('5', 'PC9', 'Computer', 'pc', 'scartato', 0.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -121,20 +125,12 @@ INSERT INTO `dotazione` (`codice`, `nome`, `categoria`, `descrizione`, `stato`, 
 
 CREATE TABLE `inventario` (
   `codice_inventario` varchar(15) NOT NULL,
-  `data_inventario` date DEFAULT NULL,
+  `data_inventario` datetime DEFAULT NULL,
   `descrizione` text DEFAULT NULL,
   `ID_aula` varchar(20) NOT NULL,
   `scuola_appartenenza` varchar(10) DEFAULT NULL,
   `ID_tecnico` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_roman_ci;
-
---
--- Dump dei dati per la tabella `inventario`
---
-
-INSERT INTO `inventario` (`codice_inventario`, `data_inventario`, `descrizione`, `ID_aula`, `scuola_appartenenza`, `ID_tecnico`) VALUES
-('497029', '2025-05-16', '88', 'INFO4', NULL, ''),
-('683642', '2025-05-16', '77', 'INFO2', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -147,15 +143,6 @@ CREATE TABLE `riga_inventario` (
   `codice_dotazione` varchar(50) DEFAULT NULL,
   `codice_inventario` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_roman_ci;
-
---
--- Dump dei dati per la tabella `riga_inventario`
---
-
-INSERT INTO `riga_inventario` (`ID_riga_inventario`, `codice_dotazione`, `codice_inventario`) VALUES
-(19, '1', '956194'),
-(20, '1', '683642'),
-(21, '1', '497029');
 
 -- --------------------------------------------------------
 
@@ -197,6 +184,7 @@ CREATE TABLE `utente` (
 --
 
 INSERT INTO `utente` (`username`, `nome`, `cognome`, `email`, `password`, `stato`, `scuola_appartenenza`) VALUES
+('aaaaaaa', 'aaaaaaa', 'aaaaaaaa', 'aaaaaa@gmail.com', '1', 'attesa', 'REIS00400D'),
 ('FilippoTecnico', 'Filippo', 'Sicilia', 'filiipomatchetti@morto.com', 'ligma', 'attivo', 'REIS00400D');
 
 --
@@ -208,7 +196,8 @@ INSERT INTO `utente` (`username`, `nome`, `cognome`, `email`, `password`, `stato
 --
 ALTER TABLE `admin`
   ADD PRIMARY KEY (`username`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `admin_ibfk_1` (`scuola_appartenenza`);
 
 --
 -- Indici per le tabelle `aula`
@@ -235,7 +224,9 @@ ALTER TABLE `dotazione`
 --
 ALTER TABLE `inventario`
   ADD PRIMARY KEY (`codice_inventario`),
-  ADD KEY `scuola_appartenenza` (`scuola_appartenenza`);
+  ADD KEY `scuola_appartenenza` (`scuola_appartenenza`),
+  ADD KEY `inventario_ibfk_2` (`ID_aula`),
+  ADD KEY `inventario_ibfk_4` (`ID_tecnico`);
 
 --
 -- Indici per le tabelle `riga_inventario`
@@ -267,11 +258,17 @@ ALTER TABLE `utente`
 -- AUTO_INCREMENT per la tabella `riga_inventario`
 --
 ALTER TABLE `riga_inventario`
-  MODIFY `ID_riga_inventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `ID_riga_inventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- Limiti per le tabelle scaricate
 --
+
+--
+-- Limiti per la tabella `admin`
+--
+ALTER TABLE `admin`
+  ADD CONSTRAINT `admin_ibfk_1` FOREIGN KEY (`scuola_appartenenza`) REFERENCES `scuola` (`codice_meccanografico`);
 
 --
 -- Limiti per la tabella `dotazione`
@@ -284,7 +281,17 @@ ALTER TABLE `dotazione`
 -- Limiti per la tabella `inventario`
 --
 ALTER TABLE `inventario`
-  ADD CONSTRAINT `inventario_ibfk_1` FOREIGN KEY (`scuola_appartenenza`) REFERENCES `scuola` (`codice_meccanografico`);
+  ADD CONSTRAINT `inventario_ibfk_1` FOREIGN KEY (`scuola_appartenenza`) REFERENCES `scuola` (`codice_meccanografico`),
+  ADD CONSTRAINT `inventario_ibfk_2` FOREIGN KEY (`ID_aula`) REFERENCES `aula` (`ID_aula`),
+  ADD CONSTRAINT `inventario_ibfk_3` FOREIGN KEY (`ID_tecnico`) REFERENCES `utente` (`username`),
+  ADD CONSTRAINT `inventario_ibfk_4` FOREIGN KEY (`ID_tecnico`) REFERENCES `admin` (`username`);
+
+--
+-- Limiti per la tabella `riga_inventario`
+--
+ALTER TABLE `riga_inventario`
+  ADD CONSTRAINT `riga_inventario_ibfk_1` FOREIGN KEY (`codice_dotazione`) REFERENCES `dotazione` (`codice`),
+  ADD CONSTRAINT `riga_inventario_ibfk_2` FOREIGN KEY (`codice_inventario`) REFERENCES `inventario` (`codice_inventario`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
