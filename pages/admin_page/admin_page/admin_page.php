@@ -29,9 +29,10 @@
 
         // Attività recenti
         $stmt = $conn->prepare("
-            SELECT i.ID_aula, u.username, i.data_inventario
+            SELECT i.ID_aula, u.username as tecnico, i.data_inventario, a.username as admin
             FROM inventario i
             LEFT JOIN utente u ON i.ID_tecnico = u.username
+            LEFT JOIN admin a ON i.ID_tecnico = a.username
             ORDER BY i.data_inventario DESC
         ");
         $stmt->execute();
@@ -173,7 +174,10 @@
                             <?php 
                                 $i = 0;
                                 foreach ($inventari_piu_tecnici as $inventario_piu_tecnico) {
-                                    echo "<tr><td>" . htmlspecialchars($inventario_piu_tecnico["username"]) . 
+                                    echo "<tr><td>" . 
+                                        (is_null($inventario_piu_tecnico["tecnico"]) 
+                                            ? htmlspecialchars($inventario_piu_tecnico["admin"]) 
+                                            : htmlspecialchars($inventario_piu_tecnico["tecnico"])) .
                                         " ha aggiornato l'inventario di " . htmlspecialchars($inventario_piu_tecnico["ID_aula"]) . 
                                         " in data " . htmlspecialchars($inventario_piu_tecnico["data_inventario"]) . 
                                         "</td></tr>";

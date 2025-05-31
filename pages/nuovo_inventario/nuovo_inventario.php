@@ -117,8 +117,6 @@
                 $stmt->execute([$username]);
                 $scuola = $stmt->fetchColumn();
             }
-            var_dump($scuola);
-
             $stmt = $conn->prepare("
                 INSERT INTO inventario (codice_inventario, data_inventario, descrizione, ID_aula, scuola_appartenenza, ID_tecnico)
                 VALUES (?, NOW(), ?, ?, ?, ?)
@@ -126,7 +124,8 @@
             $stmt->execute([$codiceInventario, $descrizione, $idAula,$scuola,$username]);
 
             $stmtAdd = $conn->prepare("INSERT INTO riga_inventario (codice_dotazione, codice_inventario) VALUES (?, ?)");
-            $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
+            if($idAula == "magazzino") $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'archiviato' WHERE codice = ?");
+            else $stmtUpdate = $conn->prepare("UPDATE dotazione SET ID_aula = ?, stato = 'presente' WHERE codice = ?");
 
             foreach ($spuntati as $codice) {
                 $stmtAdd->execute([$codice, $codiceInventario]);

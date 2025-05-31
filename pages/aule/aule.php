@@ -15,6 +15,19 @@
             $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+            // Gestione eliminazione aula PRIMA di recuperare la lista aggiornata
+            if (isset($_POST["scarta"])) {
+                if ($_POST['scarta'] !== 'magazzino') {
+                    $stmt = $conn->prepare("UPDATE aula SET stato = 'eliminata' WHERE ID_aula = :ID_aula");
+                    $stmt->bindParam(':ID_aula', $_POST['scarta']);
+                    $stmt->execute();
+
+                    $stmt = $conn->prepare("UPDATE dotazione SET stato = 'archiviato' WHERE ID_aula = :ID_aula");
+                    $stmt->bindParam(':ID_aula', $_POST['scarta']);
+                    $stmt->execute();
+                }
+            }
+
             // Controlla se esiste l'aula magazzino, altrimenti la crea
             $stmt = $conn->prepare("SELECT COUNT(*) FROM aula WHERE ID_aula = 'magazzino'");
             $stmt->execute();
@@ -24,13 +37,12 @@
                 $stmt->execute();
             }
 
-            // Recupera tutte le aule dalla tabella 'aula'
+            // recupera le aule solo DOPO eventuale eliminazione
             $stmt = $conn->query("SELECT ID_aula, descrizione, tipologia FROM aula WHERE stato = 'attiva'");
             $aule = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             die("Errore nella connessione o nella query: " . $e->getMessage());
         }
-
         if(isset($_POST["scarta"])){
             // Impedisci l'eliminazione dell'aula magazzino
             if ($_POST['scarta'] !== 'magazzino') {
@@ -51,17 +63,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="..\..\assets\css\background.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
-        <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
-        <link rel="stylesheet" href="aule.css">
-        <title>Aule</title>
-        <!-- Font Awesome per icone-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="..\..\assets\css\background.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_style_user_admin.css">
+    <link rel="stylesheet" href="..\..\assets\css\shared_admin_subpages.css">
+    <link rel="stylesheet" href="aule.css">
+    <title>Aule</title>
+    <!-- Font Awesome per icone-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <body>
     <script src="aule.js"></script>
     <div class="container">
         <!-- sidebar -->
@@ -125,14 +137,14 @@
                         <?php foreach ($aule as $aula): 
                             $stmt = $conn->prepare("SELECT ID_aula FROM inventario");
                             $controlloMagazzino = $stmt->fetchColumn();
-                            if($controlloMagazzino != "magazzino"){
-                                //Numero dotazioni
-                                $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE ID_aula = ?");
-                                $stmt->execute([$aula['ID_aula']]);
-                                $numDot = $stmt->fetchColumn();
-                            }else{
-                                //Numero dotazioni
+                            if($aula['ID_aula'] == 'magazzino'){
+                                // Dotazioni archiviate → magazzino
                                 $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE stato = 'archiviato'");
+                                $stmt->execute();
+                                $numDot = $stmt->fetchColumn();
+                            } else {
+                                // Dotazioni normali per ogni aula
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM dotazione WHERE ID_aula = ?");
                                 $stmt->execute([$aula['ID_aula']]);
                                 $numDot = $stmt->fetchColumn();
                             }

@@ -27,7 +27,7 @@
         if(isset($_POST["abilita"])){
             // Prepara la query per aggiornare la dotazione indicata
             // Imposta ID_aula a NULL, stato a 'archiviato' e prezzo_stimato a 0
-            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'archiviato', prezzo_stimato = 0 WHERE codice = :codice");
+            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = 'magazzino', stato = 'archiviato' WHERE codice = :codice");
             // Associa il parametro :codice al valore inviato nel POST
             $stmt->bindParam(':codice', $_POST['abilita']);
             // Esegue la query di aggiornamento
@@ -120,7 +120,6 @@
                         <td>Categoria</td>
                         <td>Descrizione</td>
                         <td>Prezzo Stimato</td>
-                        <td>Aula</td>
                         <td style="text-align: center;">Azioni</td>
                     </thead>
                     <tbody>
@@ -138,7 +137,6 @@
                                     echo "<td>".$dotazione['categoria']."</td>"; // Categoria
                                     echo "<td>".$dotazione['descrizione']."</td>"; // Descrizione
                                     echo "<td>".$dotazione['prezzo_stimato']."€</td>"; // Prezzo stimato con simbolo €
-                                    echo "<td>".$dotazione['ID_aula']."</td>"; // Aula (NULL in questo caso)
                                     ?>
                                     <td>
                                         <div class="div-action-btn">

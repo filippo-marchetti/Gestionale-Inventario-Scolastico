@@ -37,6 +37,7 @@ if (!is_null($username)) {
         $descrizione = $_POST['descrizione'];
         $categoria = $_POST['categoria'];
         $prezzoInput = $_POST['prezzo'];
+        $id_aula = "magazzino";
 
         // Pulizia del prezzo: rimuove tutto tranne numeri, virgole e punti
         $prezzoPulito = preg_replace('/[^0-9,.]/', '', $prezzoInput);
@@ -73,7 +74,7 @@ if (!is_null($username)) {
             $stmt->bindParam(':nome', $nome);
             $stmt->bindParam(':descrizione', $descrizione);
             $stmt->bindParam(':prezzo_stimato', $prezzoPulito);
-            $stmt->bindParam(':aula', $aula, PDO::PARAM_NULL); // Valore NULL per ID_aula
+            $stmt->bindParam(':aula', $id_aula); 
             $stmt->bindParam(':categoria', $categoria);
             $stmt->bindParam(':stato', $stato);
             $stmt->execute(); // Esegue l'inserimento

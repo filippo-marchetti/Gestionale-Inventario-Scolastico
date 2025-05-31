@@ -27,7 +27,7 @@
         // Se viene premuto il bottone "archivia" in POST
         if(isset($_POST["archivia"])){
             // Preparo la query per aggiornare lo stato della dotazione a "archiviato" e rimuovere l'aula associata
-            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = NULL, stato = 'archiviato' WHERE codice = :codice");
+            $stmt = $conn->prepare("UPDATE dotazione SET ID_aula = 'magazzino', stato = 'archiviato' WHERE codice = :codice");
             // Associo il parametro codice al valore inviato nel POST
             $stmt->bindParam(':codice', $_POST['archivia']);
             // Eseguo la query

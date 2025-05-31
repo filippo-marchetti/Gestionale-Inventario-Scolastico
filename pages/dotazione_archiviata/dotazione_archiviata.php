@@ -121,7 +121,7 @@
                         <tbody>
                             <?php
                                 // Recupera tutte le dotazioni archiviate (senza aula e stato 'archiviato')
-                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula IS NULL AND stato LIKE 'archiviato'");
+                                $stmt = $conn->query("SELECT * FROM dotazione WHERE ID_aula = 'magazzino' AND stato = 'archiviato'");
                                 $dotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 // Cicla tutte le dotazioni e le mostra in tabella
